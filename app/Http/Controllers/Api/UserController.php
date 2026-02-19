@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Resources\UserResource;
+use App\Http\Resources\VideoResource;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+
+class UserController extends Controller
+{
+    public function videos(Request $request) {
+        $videos = $request->user()->videos()->with('covers')->latest()->get();
+        return response()->json(
+            VideoResource::collection($videos)
+        );
+    }
+
+    public function profile(Request $request) {
+        return response()->json(
+            new UserResource($request->user())
+        );
+    }
+
+    public function update(Request $request) {
+        $data = $request->all();
+        $user = $request->user();
+
+        if (isset($data['email']) && $data['email'] === $user->email) {
+            unset($data['email']);
+        }
+
+        $validator = Validator::make($data, [
+            'name' => 'string|max:30',
+            'email' => 'email|max:255|unique:users,email',
+            'password' => 'min:6|confirmed',
+        ]);
+
+        $validated = $validator->validated();
+
+        if (isset($validated['password'])) {
+            $validated['password'] = Hash::make($validated['password']);
+        }
+
+        $user = Auth::user();
+        $user->fill($validated)->save();
+
+        return response()->json([
+            'message' => 'Настройки успешно сохранены!',
+            'user' => $user,
+        ]);
+    }
+}
