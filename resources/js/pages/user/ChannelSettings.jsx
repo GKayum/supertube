@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { useAuth } from "../../contexts/AuthContext";
 import { api, handlerApiError } from "../../services/api";
-// import AvatarCropper from '../../components/form/AvatarCropper'
+import AvatarCropper from '../../components/form/AvatarCropper'
 
 export default function ChannelSettings() {
     const { user, userLoading, setUser } = useAuth()
@@ -69,8 +69,7 @@ export default function ChannelSettings() {
 
             <div className="mb-4">
                 <label className="block mb-2 font-medium text-gray-700">Аватар</label>
-                {/* <AvatarCropper onChange={blob => setAvatar(blob)} /> */}
-                {/* <AvatarCropper avatar={avatar} /> */}
+                <AvatarCropper onChangeAvatar={blob => setAvatar(blob)} />
                 {errors.avatar && <div className="text-red-500 text-sm mt-1">{errors.avatar[0]}</div>}
             </div>
 
