@@ -2,76 +2,34 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Helpers\Search;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\VideoUploadRequest;
 use App\Http\Resources\VideoResource;
-use App\Models\Cover;
 use App\Models\Video;
+use App\Services\Contracts\VideoServiceContract;
 use Illuminate\Http\Request;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Log;
 
 class VideoController extends Controller
 {
-    public function upload(Request $request) {
-        $validated = $request->validate([
-            'title' => 'required|string|max:255',
-            'description' => 'string|max:2048',
-            'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:25600',
-            'preview350' => 'required|file|mimetypes:image/jpeg,image/jpg,image/png,image/webp|max:1024|dimensions:width=350,height=192',
-            'preview480' => 'required|file|mimetypes:image/jpeg,image/jpg,image/png,image/webp|max:1024|dimensions:width=480,height=240',
-        ]);
+    public function __construct(private readonly VideoServiceContract $service)
+    {
+    }
 
-        $files = Arr::only($validated, ['video', 'preview350', 'preview480']);
-        $paths = [];
-
-        foreach ($files as $key => $item) {
-            $filename = Str::uuid() . '.' . $item->getClientOriginalExtension();
-            $paths[$key] = $item->storeAs($key === 'video' ? 'videos' : 'covers', $filename, 'public');
-        }
-
-        // Отключение автосохранения изменений, 
-        // позволяет выполнить группу SQL-запросов как одно целое
-        DB::beginTransaction();
-
+    public function upload(VideoUploadRequest $request) {
         try {
-            $video = Video::create([
-                'user_id' => $request->user()->id,
-                'title' => $validated['title'],
-                'description' => $validated['description'],
-                'path' => Storage::url($paths['video']),
-            ]);
-
-            $covers = Arr::only($validated, ['preview350', 'preview480']);
-
-            foreach ($covers as $key => $cover) {
-                Cover::create([
-                    'video_id' => $video->id,
-                    'width' => $key === 'preview350' ? 350 : 480,
-                    'height' => $key === 'preview350' ? 192 : 240,
-                    'path' => Storage::url($paths[$key]),
-                ]);
-            }
-
-            DB::commit();
+            $result = $this->service->upload($request);
         } catch (\Throwable $e) {
-            DB::rollBack();
-
-            foreach ($paths as $path) {
-                Storage::delete(Storage::url($path));
-            }
-
+            // Log::error('Video upload failed', [
+            //     'error' => $e->getMessage(), 
+            //     'trace' => $e->getTraceAsString()
+            // ]);
             return response()->json([
                 'message' => 'Ошибка при сохранении мета данных видео.'
             ], 500);
         }
 
-
-        return response()->json([
-            'message' => 'Видео успешно загружено',
-        ]);
+        return response()->json($result);
     }
 
     public function list() {
@@ -99,20 +57,10 @@ class VideoController extends Controller
     }
 
     public function search(Request $request) {
-        $words = Search::normalize($request->input('q', ''));
-        $videos = Video::query()
-            ->where(function($q) use ($words) {
-                foreach ($words as $word) {
-                    $q->orWhere('title', 'like', "%$word%")
-                        ->orWhere('description', 'like', "%$word%");
-                }
-            })
-            ->with('user')
-            ->orderByDesc('id')
-            ->paginate(20);
-        
         return response()->json(
-            VideoResource::collection($videos)
+            VideoResource::collection(
+                $this->service->search($request)
+            )
         );
     }
 }

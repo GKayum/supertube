@@ -3,7 +3,6 @@ import { Link } from "react-router-dom";
 
 import { api, handlerApiError } from '../services/api'
 import { useAuth } from '../contexts/AuthContext'
-import CoverValidation from "../validators/Cover"; 
 
 export default function Upload() {
     const { user } = useAuth()
@@ -15,11 +14,7 @@ export default function Upload() {
     const [message, setMessage] = useState('')
     const [isError, setIsError] = useState(false)
     const [previewUrl, setPreviewUrl] = useState(null)
-
-    const [preview350, setPreview350] = useState(null)
-    const [preview480, setPreview480] = useState(null)
-    const [preview350Url, setPreview350Url] = useState(null)
-    const [preview480Url, setPreview480Url] = useState(null)
+    const [preview, setPreview] = useState(null)
 
     const [previewError, setPreviewError] = useState('')
     const [fileError, setFileError] = useState('')
@@ -53,37 +48,18 @@ export default function Upload() {
         setIsError(false)
     }
 
-    const handlePreview350Change = async (e) => {
+    const handlePreviewChange = async (e) => {
         const file = e.target.files[0]
 
         if (file) {
             try {
-                const url = await CoverValidation(file, 350, 192)
-
-                setPreview350(file)
-                setPreview350Url(url)
+                const url = URL.createObjectURL(file)
+                setPreview(file)
+                setPreviewUrl(url)
                 setPreviewError('')
             } catch (error) {
-                setPreview350(null)
-                setPreview350Url(null)
-                setPreviewError(error)
-            }
-        }
-    }
-
-    const handlePreview480Change = async (e) => {
-        const file = e.target.files[0]
-
-        if (file) {
-            try {
-                const url = await CoverValidation(file, 480, 240)
-
-                setPreview480(file)
-                setPreview480Url(url)
-                setPreviewError('')
-            } catch (error) {
-                setPreview480(null)
-                setPreview480Url(null)
+                setPreview(null)
+                setPreviewUrl(null)
                 setPreviewError(error)
             }
         }
@@ -102,8 +78,8 @@ export default function Upload() {
             hasError = true
         }
 
-        if (!preview350 || !preview480) {
-            setPreviewError('Загрузите оба превью изображения.')
+        if (!preview) {
+            setPreviewError('Загрузите превью изображения.')
             hasError = true
         }
 
@@ -115,13 +91,13 @@ export default function Upload() {
         formData.append('video', file)
         formData.append('title', title)
         formData.append('description', description)
-        formData.append('preview350', preview350)
-        formData.append('preview480', preview480)
+        formData.append('preview', preview)
 
         try {
             setUploading(true)
             setUploadProgress(0)
             setMessage('')
+            setError('')
             setIsError(false)
 
             await api.get('/sanctum/csrf-cookie')
@@ -140,12 +116,9 @@ export default function Upload() {
             setTitle('')
             setDescription('')
             setPreviewUrl(null)
-            setPreview350(null)
-            setPreview480(null)
-            setPreview350Url(null)
-            setPreview480Url(null)
+            setPreview(null)
+            setPreviewUrl(null)
         } catch (error) {
-            console.log(error);
             setMessage('Ошибка загрузки видео')
             setIsError(true)
             handlerApiError(error, { setValidationErrors, setError })
@@ -230,38 +203,20 @@ export default function Upload() {
             )}
 
             <div className="mb-4">
-                <label className="block mb-2 font-medium text-gray-700">Превью обложка 350x192</label>
+                <label className="block mb-2 font-medium text-gray-700">Превью обложка</label>
                 <input 
                     type="file"
                     accept="image/*"
-                    onChange={handlePreview350Change}
+                    onChange={handlePreviewChange}
                     className="w-full"
                 />
 
-                {preview350Url && (
-                    <img src={preview350Url} alt="Preview 350x192" className="mt-2 w-[350px] border rounded" />
+                {previewUrl && (
+                    <img src={previewUrl} alt="Preview" className="mt-2 w-[480px] border rounded" />
                 )}
 
-                {validationErrors.preview350 && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.preview350[0]}</p>
-                )}
-            </div>
-
-            <div className="mb-4">
-                <label className="block mb-2 font-medium text-gray-700">Превью обложка 480x240</label>
-                <input 
-                    type="file"
-                    accept="image/*"
-                    onChange={handlePreview480Change}
-                    className="w-full"
-                />
-
-                {preview480Url && (
-                    <img src={preview480Url} alt="Preview 350x192" className="mt-2 w-[480px] border rounded" />
-                )}
-
-                {validationErrors.preview480 && (
-                    <p className="text-red-500 text-sm mt-1">{validationErrors.preview480[0]}</p>
+                {validationErrors.preview && (
+                    <p className="text-red-500 text-sm mt-1">{validationErrors.preview[0]}</p>
                 )}
 
                 {previewError && (
