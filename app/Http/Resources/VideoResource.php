@@ -17,6 +17,8 @@ class VideoResource extends JsonResource
             'description' => $this->description,
             'path' => $this->path,
             'views' => $this->views->count(),
+            'comments' => $this->comments->count(),
+            'timeAgo' => $this->created_at->diffForHumans(),
 
             'preview350' => isset($previews[350]) ? $previews[350]->path : null,
             'preview480' => isset($previews[480]) ? $previews[480]->path : null,

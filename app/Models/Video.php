@@ -21,6 +21,10 @@ class Video extends Model
         return $this->hasMany(View::class);
     }
 
+    public function comments() {
+        return $this->hasMany(Comment::class);
+    }
+
     public function user() {
         return $this->hasOne(User::class, 'id', 'user_id');
     }

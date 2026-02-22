@@ -53,7 +53,7 @@ export default function SearchCard({ video }) {
                         {video.user.name}
                     </span>
                     <span className="text-xs text-gray-400">
-                        {video.views} просмотров • {video.createdAt}
+                        {video.views} просмотров • {video.timeAgo}
                     </span>
                 </div>
 

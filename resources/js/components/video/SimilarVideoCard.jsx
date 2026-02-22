@@ -10,7 +10,7 @@ export default function SimilarVideoCard({ video }) {
                         {video.title}
                     </p>
                     <p className="text-sm text-gray-500">
-                        {video.user.name} • 3.2 тыс. просмотров
+                        {video.user.name} • {video.views} просмотров
                     </p>
                 </div>
             </div>
