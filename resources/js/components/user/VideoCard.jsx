@@ -47,12 +47,12 @@ export default function VideoCard({ video }) {
                 </Link>
 
                 <div className="flex items-center gap-4 mb-2 flex-wrap">
+                    <Avatar user={video.user} />
                     <Link
                         to={`/channel/${video.user?.id ?? 0}`}
                         className="flex items-center gap-4 group shrink-0"
                         title={video.user?.name}
                     >
-                        <Avatar user={video.user} />
                         <span className="text-gray-700 text-sm font-medium group-hover:underline truncate">
                             {video.user?.name ?? 'Channel'}
                         </span>

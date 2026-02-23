@@ -1,6 +1,6 @@
 import axios from "axios";
 import React, { useEffect, useState } from "react";
-import VideoCard from '../components/video/VideoCard'
+import VideoCard from '../components/video/cards/VideoCard'
 
 export default function Home() {
     const [videos, setVideos] = useState([])

@@ -3,6 +3,15 @@ import Avatar from "../../components/user/Avatar";
 import { useParams } from "react-router-dom";
 import { api, handlerApiError } from '../../services/api'
 import NotFound from '../404'
+import ChannelVideoCard from "../../components/video/cards/ChannelVideoCard";
+
+const TABS = [
+    { key: 'videos',    label: 'Видео' },
+    { key: 'playlists', label: 'Плейлисты' },
+    { key: 'shorts',    label: 'Шортсы' },
+    { key: 'posts',     label: 'Посты' },
+    { key: 'streams',   label: 'Стримы' },
+]
 
 export default function Channel() {
     const { id } = useParams()
@@ -10,6 +19,7 @@ export default function Channel() {
     const [loading, setLoading] = useState(true)
     const [notChannel, setNotChannel] = useState(false)
     const [showFullDescription, setShowFullDescription] = useState(false)
+    const [activeTab, setActiveTab] = useState('videos')
 
     useEffect(() => {
         fetchChannel()
@@ -55,16 +65,16 @@ export default function Channel() {
                     <Avatar user={channel} text={'text-8xl'} classes={'md:w-32 md:h-32 border-4 border-black shadow'} />
                     <div className="ml-4 mb-2">
                         <h1 className="text-2xl md:text-3xl font-bold">{channel.title}</h1>
-                        <p className="text-gray-600">456 тыс. подписчиков</p>
+                        <p className="text-gray-600">{channel.subscribers ?? 0} подписчиков</p>
                     </div>
                 </div>
                 <div className="pt-16 md:pt-20"></div>
             </div>
 
             <div className="px-4">
-                <div id="description" className="text-gray-700 overflow-hidden transition-all duration-300">
+                <div id="description" className="text-gray-700 overflow-hidden transition-all duration-300 whitespace-pre-line">
                     {isLongDescription
-                        ? shortDescription
+                        ? showFullDescription
                             ? description
                             : shortDescription
                         : description}
@@ -81,16 +91,49 @@ export default function Channel() {
 
             <nav className="border-b mt-4">
                 <ul className="flex gap-6 px-4 overflow-x-auto">
-                    <li><a href="#" className="block py-4 font-semibold border-b-2 border-red-600">Видео</a></li>
-                    <li><a href="#" className="block py-4 hover:text-red-600">Плейлисты</a></li>
-                    <li><a href="#" className="block py-4 hover:text-red-600">Шортсы</a></li>
-                    <li><a href="#" className="block py-4 hover:text-red-600">Записи</a></li>
-                    <li><a href="#" className="block py-4 hover:text-red-600">Трансляции</a></li>
+                    {TABS.map(tab => (
+                        <li key={tab.key}>
+                            <button
+                                type="button"
+                                className={
+                                    "block py-4 font-semibold transition-all duration-150 cursor-pointer " +
+                                    (activeTab === tab.key
+                                        ? "border-red-600 text-red-600"
+                                        : "border-transparent hover:text-red-600"
+                                    )
+                                }
+                                onClick={() => setActiveTab(tab.key)}
+                            >
+                                {tab.label}
+                            </button>
+                        </li>
+                    ))}
                 </ul>
             </nav>
 
             <section className="px-4 py-8">
-                <div className="text-gray-500">Здесь будет контент вкладки...</div>
+                {activeTab === 'videos' && (
+                    (channel.videos.length === 0
+                        ? (<div className="text-gray-500">Нет видео на этом канале</div>)
+                        : (<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+                            {channel.videos.map(video => (
+                                <ChannelVideoCard key={video.id} video={video} />
+                            ))}
+                        </div>)
+                    )
+                )}
+                {activeTab === 'playlists' && (
+                    <div>Плейлисты...</div>
+                )}
+                {activeTab === 'shorts' && (
+                    <div>Шортсы...</div>
+                )}
+                {activeTab === 'posts' && (
+                    <div>Посты...</div>
+                )}
+                {activeTab === 'streams' && (
+                    <div>Стримы...</div>
+                )}
             </section>
 
 

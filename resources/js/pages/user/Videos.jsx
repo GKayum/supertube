@@ -31,7 +31,7 @@ export default function MyVideos() {
 
             <div className="space-y-6">
                 {videos.map(video => (
-                    <VideoCard key={video.key} video={video} />
+                    <VideoCard key={video.id} video={video} />
                 ))}
             </div>
         </div>

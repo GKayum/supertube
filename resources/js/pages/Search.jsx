@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react"
-import SearchCard from "../components/video/SearchCard"
+import SearchCard from "../components/video/cards/SearchCard"
 import { api, handlerApiError } from "../services/api"
 import { useLocation } from "react-router-dom"
 

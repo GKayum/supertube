@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import Avatar from "../user/Avatar";
+import Avatar from "../../user/Avatar";
 
 export default function SearchCard({ video }) {
     const [hovered, setHovered] = useState(false)

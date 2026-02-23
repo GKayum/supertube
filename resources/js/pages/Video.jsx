@@ -3,7 +3,7 @@ import { useParams } from "react-router-dom";
 
 import { useAuth } from '../contexts/AuthContext'
 import { api, handlerApiError } from '../services/api'
-import SimilarVideoCard from '../components/video/SimilarVideoCard'
+import SimilarVideoCard from '../components/video/cards/SimilarVideoCard'
 import Comment from '../components/video/Comment'
 import CommentForm from '../components/form/CommentForm'
 import ViewTracker from "../components/wrappers/ViewTracker";
@@ -216,7 +216,7 @@ export default function Video() {
                                 </div>
 
                                 {/* Описание */}
-                                <div className="mt-4 bg-gray-100 p-4 rounded-lg text-sm text-gray-800">
+                                <div className="mt-4 bg-gray-100 p-4 rounded-lg text-sm text-gray-800 whitespace-pre-line">
                                     {video.description}
                                 </div>
                             </>
