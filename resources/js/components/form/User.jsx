@@ -77,9 +77,9 @@ export default function User({
                     placeholder="Повторите пароль"
                     className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${errors.passwordConfirmation ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'}`}
                 />
-                {errors.passwordConfirmation && (
+                {/* {errors.passwordConfirmation && (
                     <div className="text-red-500 text-sm mt-1">{errors.passwordConfirmation[0]}</div>
-                )}
+                )} */}
             </div>
 
             <button

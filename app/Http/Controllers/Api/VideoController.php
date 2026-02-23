@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\VideoEditRequest;
 use App\Http\Requests\VideoUploadRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Video;
@@ -26,6 +27,18 @@ class VideoController extends Controller
             // ]);
             return response()->json([
                 'message' => 'Ошибка при сохранении мета данных видео.'
+            ], 500);
+        }
+
+        return response()->json($result);
+    }
+
+    public function edit(int $id, VideoEditRequest $request) {
+        try {
+            $result = $this->service->edit($id, $request);
+        } catch (\Throwable $e) {
+            return response()->json([
+                'message' => 'Ошибка при редактировании мета данных видео.'
             ], 500);
         }
 

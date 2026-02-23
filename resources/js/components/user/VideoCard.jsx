@@ -118,6 +118,29 @@ export default function VideoCard({ video }) {
                 <p className="text-gray-600 text-sm line-clamp-6">
                     {video.description}
                 </p>
+
+                <div className="mt-3">
+                    <Link
+                        to={`/edit/${video.id}`}
+                        className="inline-flex items-center gap-1 px-2 py-1 text-xs text-gray-500 hover:text-blue-600"
+                        title='Редактировать'
+                        tabIndex={0}
+                    >
+                        <svg
+                            className="w-4 h-4"
+                            width="24" 
+                            height="24" 
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth={2} 
+                        >
+                            <path d="M21.174 6.812a1 1 0 0 0-3.986-3.987L3.842 16.174a2 2 0 0 0-.5.83l-1.321 4.352a.5.5 0 0 0 .623.622l4.353-1.32a2 2 0 0 0 .83-.497z"/>
+                            <path d="m15 5 4 4"/>
+                        </svg>
+                        <span>Редактировать</span>
+                    </Link>
+                </div>
             </div>
         </div>
     )

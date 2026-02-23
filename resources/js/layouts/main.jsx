@@ -16,6 +16,7 @@ import SearchResultList from "../pages/Search";
 import Channel from "../pages/user/Channel";
 import ChannelSettings from "../pages/user/ChannelSettings";
 import Protected from "../components/route/Protected";
+import VideoEdit from "../pages/user/VideoEdit";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -40,6 +41,7 @@ export default function Main() {
                         <Route element={<Protected />}>
                             <Route path="/channel/settings" element={<ChannelSettings />} />
                             <Route path="/upload" element={<Upload />} />
+                            <Route path="/edit/:id" element={<VideoEdit />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/my-videos" element={<MyVideos />} />
                         </Route>
