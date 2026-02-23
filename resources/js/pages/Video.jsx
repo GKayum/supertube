@@ -25,6 +25,35 @@ export default function Video() {
     const [loadingComments, setLoadingComments] = useState(true)
     const [error, setError] = useState('')
     const [notVideo, setNotVideo] = useState(false)
+    const [isSubscribed, setIsSubscribed] = useState(false)
+    const [subLoading, setSubLoading] = useState(false)
+    const [subscribers, setSubscribers] = useState(0)
+
+    const subscribe = async () => {
+        setSubLoading(true)
+        try {
+            const response = await api.post(`/api/v1/channel/${video.channel.id}/subscribe`)
+            setIsSubscribed(true)
+            setSubscribers(response.data.subscribers)
+        } catch (error) {
+            handlerApiError(error, { setValidationErrors: () => {}, setError})
+        } finally {
+            setSubLoading(false)
+        }
+    }
+
+    const unsubscribe = async () => {
+        setSubLoading(true)
+        try {
+            const response = await api.post(`/api/v1/channel/${video.channel.id}/unsubscribe`)
+            setIsSubscribed(false)
+            setSubscribers(response.data.subscribers)
+        } catch (error) {
+            handlerApiError(error, { setValidationErrors: () => {}, setError})
+        } finally {
+            setSubLoading(false)
+        }
+    }
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -38,6 +67,8 @@ export default function Video() {
 
                 setVideo(videoRes.data)
                 setSimilarVideos(similarRes.data)
+                setIsSubscribed(videoRes.data.channel?.isSubscribed)
+                setSubscribers(videoRes.data.channel?.subscribers)
                 setComments(commentsRes.data.comments)
                 setCommentsCount(commentsRes.data.count)
                 setLikesCount(likesRes.data.likes)
@@ -128,8 +159,26 @@ export default function Video() {
 
                                         <div>
                                             <p className="text-gray-900 font-medium">{video.user.name}</p>
-                                            <p className="text-sm text-gray-500">5 тыс. подписчиков</p>
+                                            <p className="text-sm text-gray-500">{subscribers ?? 0} подписчиков</p>
                                         </div>
+                                        {user && user.channel?.id !== video.channel?.id && (
+                                            <button
+                                                className={`ml-4 px-4 py-2 rounded font-medium text-sm transition cursor-pointer ${
+                                                    isSubscribed
+                                                        ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
+                                                        : 'bg-red-600 text-white hover:bg-red-700'    
+                                                }`}
+                                                onClick={isSubscribed ? unsubscribe : subscribe}
+                                                disabled={subLoading}
+                                            >
+                                                {subLoading
+                                                    ? '...'
+                                                    : isSubscribed
+                                                        ? 'Отписаться'
+                                                        : 'Подписаться'
+                                                }
+                                            </button>
+                                        )}
                                     </div>
 
                                     <div className="flex items-center space-x-2">

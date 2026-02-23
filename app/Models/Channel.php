@@ -16,4 +16,8 @@ class Channel extends Model
     public function user() {
         return $this->hasOne(User::class, 'id', 'user_id');
     }
+
+    public function subscribers() {
+        return $this->belongsToMany(User::class, 'subscribers', 'channel_id', 'user_id');
+    }
 }

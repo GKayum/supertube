@@ -15,6 +15,7 @@ import Settings from "../pages/user/Settings";
 import SearchResultList from "../pages/Search";
 import Channel from "../pages/user/Channel";
 import ChannelSettings from "../pages/user/ChannelSettings";
+import Protected from "../components/route/Protected";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -29,16 +30,19 @@ export default function Main() {
                 <div className="w-full max-w-6xl px-2">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/upload" element={<Upload />} />
                         <Route path="/login" element={<Login />} />
-                        <Route path="/register" element={<Register />} />
-                        <Route path="/my-videos" element={<MyVideos />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/video/:id" element={<Video />} />
                         <Route path="/search" element={<SearchResultList />} />
                         <Route path="/channel/:id" element={<Channel />} />
-                        <Route path="/channel/settings" element={<ChannelSettings />} />
                         <Route path="*" element={<NotFound />} />
+                        
+                        <Route element={<Protected />}>
+                            <Route path="/channel/settings" element={<ChannelSettings />} />
+                            <Route path="/upload" element={<Upload />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route path="/my-videos" element={<MyVideos />} />
+                        </Route>
                     </Routes>
                 </div>
             </main>

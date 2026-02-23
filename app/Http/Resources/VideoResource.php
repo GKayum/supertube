@@ -3,6 +3,7 @@
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 
 class VideoResource extends JsonResource
@@ -27,6 +28,12 @@ class VideoResource extends JsonResource
                 'id' => $this->user->id,
                 'name' => $this->user->name,
                 'avatar' => $this->user->channel?->avatar,
+            ],
+
+            'channel' => [
+                'id' => $this->user->channel?->id,
+                'subscribers' => $this->user->channel?->subscribers->count() ?? 0,
+                'isSubscribed' => $this->user->channel?->subscribers()->where('user_id', Auth::id())->exists(),
             ],
         ];
     }
