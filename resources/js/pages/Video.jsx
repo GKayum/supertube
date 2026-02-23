@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 
 import { useAuth } from '../contexts/AuthContext'
-import { api, handlerApiError } from '../services/api'
+import { api } from '../services/api'
+import { getFingerprint } from "../services/fingerprint";
 import SimilarVideoCard from '../components/video/cards/SimilarVideoCard'
 import Comment from '../components/video/Comment'
 import CommentForm from '../components/form/CommentForm'
 import ViewTracker from "../components/wrappers/ViewTracker";
 import Avatar from "../components/user/Avatar";
 import NotFound from "./404";
+import Toast from "../components/form/Toast";
 
 export default function Video() {
     const { id } = useParams()
@@ -23,37 +25,11 @@ export default function Video() {
     const [loading, setLoading] = useState(true)
     const [loadingSimilar, setLoadingSimilar] = useState(true)
     const [loadingComments, setLoadingComments] = useState(true)
-    const [error, setError] = useState('')
     const [notVideo, setNotVideo] = useState(false)
     const [isSubscribed, setIsSubscribed] = useState(false)
     const [subLoading, setSubLoading] = useState(false)
     const [subscribers, setSubscribers] = useState(0)
-
-    const subscribe = async () => {
-        setSubLoading(true)
-        try {
-            const response = await api.post(`/api/v1/channel/${video.channel.id}/subscribe`)
-            setIsSubscribed(true)
-            setSubscribers(response.data.subscribers)
-        } catch (error) {
-            handlerApiError(error, { setValidationErrors: () => {}, setError})
-        } finally {
-            setSubLoading(false)
-        }
-    }
-
-    const unsubscribe = async () => {
-        setSubLoading(true)
-        try {
-            const response = await api.post(`/api/v1/channel/${video.channel.id}/unsubscribe`)
-            setIsSubscribed(false)
-            setSubscribers(response.data.subscribers)
-        } catch (error) {
-            handlerApiError(error, { setValidationErrors: () => {}, setError})
-        } finally {
-            setSubLoading(false)
-        }
-    }
+    const [toast, setToast] = useState({visible: false, message: '', type: 'info'})
 
     useEffect(() => {
         const fetchAll = async () => {
@@ -79,8 +55,7 @@ export default function Video() {
                     setNotVideo(true)
                 }
 
-                console.error('Ошибка при загрузке данных: ', error);
-                handlerApiError(error, {setValidationErrors: () => {}, setError})
+                setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
             } finally {
                 setLoading(false)
                 setLoadingSimilar(false)
@@ -93,14 +68,28 @@ export default function Video() {
 
     const rateHandler = async (type) => {
         try {
+            const fingerprint = await getFingerprint()
+
             await api.get('/sanctum/csrf-cookie')
-            const response = await api.post('/api/v1/videos/' + id + '/' + type)
+            const response = await api.post('/api/v1/videos/' + id + '/' + type, {fingerprint})
 
             setLikesCount(response.data.likes)
             setDislikesCount(response.data.dislikes)
         } catch (error) {
-            console.log('Ошибка при попытке лайкнуть/дизлайкнуть видео: ' + error)
-            handlerApiError(error, { setValidationErrors: () => {}, setError })
+            setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
+        }
+    }
+
+    const processSubs = async (type, isSubscribed) => {
+        setSubLoading(true)
+        try {
+            const response = await api.post(`/api/v1/channel/${video.channel.id}/${type}`)
+            setIsSubscribed(isSubscribed)
+            setSubscribers(response.data.subscribers)
+        } catch (error) {
+            setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
+        } finally {
+            setSubLoading(false)
         }
     }
 
@@ -115,16 +104,13 @@ export default function Video() {
     return (
         <div className="max-w-7xl mx-auto px-4 py-6 flex flex-col lg:flex-row gap-8">
 
+            <Toast 
+                {...toast}
+                onClose={() => setToast(t => ({ ...t, visible: false }))}
+            />
+
             {/* Левая колонка - основное видео и информация */}
             <div className="flex-1 min-w-0">
-
-                {error && (
-                    <div className="mb-4 w-full h-12 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                        <strong className="font-bold">Ошибка:</strong>
-                        <span className="block sm:inline">{error}</span>
-                    </div>
-                )}
-
                 {loading ? (
                     // <p className="text-gray-500">Загрузка видео...</p>
                     <div style={{backgroundColor: '#262627'}} className="w-full aspect-video rounded-xl"></div>
@@ -168,7 +154,7 @@ export default function Video() {
                                                         ? 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                                                         : 'bg-red-600 text-white hover:bg-red-700'    
                                                 }`}
-                                                onClick={isSubscribed ? unsubscribe : subscribe}
+                                                onClick={() => processSubs(isSubscribed ? 'unsubscribe' : 'subscribe', !isSubscribed)}
                                                 disabled={subLoading}
                                             >
                                                 {subLoading

@@ -9,15 +9,18 @@ use Illuminate\Http\Request;
 class LikeController extends Controller
 {
     public function like(int $videoId, Request $request) {
-        if (Like::where(['video_id' => $videoId, 'user_id' => $request->user()->id])->first()) {
-            return response()->json([
-                'message' => 'Вы уже оценивали это видео',
-            ], 400);
+        $exists = Like::where(['video_id' => $videoId, 'fingerprint' => $request->post('fingerprint')])->exists();
+
+        if ($exists) {
+            Like::where(['video_id' => $videoId, 'fingerprint' => $request->post('fingerprint')])->delete();
+
+            return $this->getResponse($videoId);
         }
 
         Like::create([
             'video_id' => $videoId,
-            'user_id' => $request->user()->id,
+            'user_id' => $request->user()?->id,
+            'fingerprint' => $request->post('fingerprint'),
             'result' => 1,
         ]);
 
@@ -25,15 +28,18 @@ class LikeController extends Controller
     }
 
     public function dislike(int $videoId, Request $request) {
-        if (Like::where(['video_id' => $videoId, 'user_id' => $request->user()->id])->first()) {
-            return response()->json([
-                'message' => 'Вы уже оценивали это видео',
-            ], 400);
+        $exists = Like::where(['video_id' => $videoId, 'fingerprint' => $request->post('fingerprint')])->exists();
+
+        if ($exists) {
+            Like::where(['video_id' => $videoId, 'fingerprint' => $request->post('fingerprint')])->delete();
+
+            return $this->getResponse($videoId);
         }
 
         Like::create([
             'video_id' => $videoId,
-            'user_id' => $request->user()->id,
+            'user_id' => $request->user()?->id,
+            'fingerprint' => $request->post('fingerprint'),
             'result' => 0,
         ]);
 

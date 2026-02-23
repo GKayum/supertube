@@ -22,6 +22,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/videos/{id}/similar', [VideoController::class, 'similar'])->where('id', '[1-9][0-9]*');
     Route::get('/videos/{id}/comments', [CommentController::class, 'list'])->where('id', '[1-9][0-9]*');
     Route::get('/videos/{id}/likes', [LikeController::class, 'list'])->where('id', '[1-9][0-9]*');
+    Route::post('/videos/{id}/like', [LikeController::class, 'like'])->where('id', '[1-9][0-9]*');
+    Route::post('/videos/{id}/dislike', [LikeController::class, 'dislike'])->where('id', '[1-9][0-9]*');
     Route::post('/videos/{id}/view/increment', [ViewController::class, 'increment'])->where('id', '[1-9][0-9]*');
 
     Route::get('/channel/{id}', [ChannelController::class, 'show'])->where('id', '[1-9][0-9]*');
@@ -31,8 +33,6 @@ Route::prefix('v1')->group(function () {
         Route::post('/videos/upload', [VideoController::class, 'upload']);
 
         Route::post('/videos/{id}/comments', [CommentController::class, 'create'])->where('id', '[1-9][0-9]*');
-        Route::post('/videos/{id}/like', [LikeController::class, 'like'])->where('id', '[1-9][0-9]*');
-        Route::post('/videos/{id}/dislike', [LikeController::class, 'dislike'])->where('id', '[1-9][0-9]*');
 
         Route::post('/channel/{id}/subscribe', [SubscribeController::class, 'subscribe'])->where('id', '[1-9][0-9]*');
         Route::post('/channel/{id}/unsubscribe', [SubscribeController::class, 'unsubscribe'])->where('id', '[1-9][0-9]*');
