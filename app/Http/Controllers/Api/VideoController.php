@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\VideoStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\VideoEditRequest;
 use App\Http\Requests\VideoUploadRequest;
@@ -46,7 +47,7 @@ class VideoController extends Controller
     }
 
     public function list() {
-        $videos = Video::with('covers')->latest()->get();
+        $videos = Video::with('covers')->where('status', VideoStatus::Published)->latest()->get();
 
         return response()->json(
             VideoResource::collection($videos)
@@ -74,6 +75,12 @@ class VideoController extends Controller
             VideoResource::collection(
                 $this->service->search($request)
             )
+        );
+    }
+
+    public function statuses() {
+        return response()->json(
+            VideoStatus::userAvialable()
         );
     }
 }

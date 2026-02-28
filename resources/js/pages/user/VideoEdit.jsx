@@ -20,6 +20,7 @@ export default function VideoEdit() {
     const [isError, setIsError] = useState(false)
     const [notVideo, setNotVideo] = useState(false)
     const [loading, setLoading] = useState(false)
+    const [status, setStatus] = useState('')
 
     useEffect(() => {
         async function fetchVideo() {
@@ -27,6 +28,7 @@ export default function VideoEdit() {
                 setLoading(true)
                 const response = await api.get(`/api/v1/videos/${id}`)
                 setTitle(response.data.title)
+                setStatus(response.data.status)
                 setDescription(response.data.description)
                 setCurrentPreviewUrl(response.data.preview350 || null)
                 setVideoPath(response.data.path || null)
@@ -44,6 +46,7 @@ export default function VideoEdit() {
 
     const handleTitleChange = e => setTitle(e.target.value)
     const handleDescriptionChange = e => setDescription(e.target.value)
+    const handleStatusChange = e => setStatus(e.target.value)
     const handlePreviewChange = e => {
         const file = e.target.files[0]
         if (file) {
@@ -68,6 +71,7 @@ export default function VideoEdit() {
 
         const formData = new FormData()
         formData.append('title', title)
+        formData.append('status', status)
         formData.append('description', description)
         if (preview) formData.append('preview', preview)
 
@@ -118,6 +122,8 @@ export default function VideoEdit() {
                 validationErrors={validationErrors}
                 uploading={uploading}
                 isEdit={true}
+                status={status}
+                onStatusChange={handleStatusChange}
                 onTitleChange={handleTitleChange}
                 onDescriptionChange={handleDescriptionChange}
                 onPreviewChange={handlePreviewChange}

@@ -10,6 +10,8 @@ class Video extends Model
         'user_id',
         'title',
         'description',
+        'status',
+        'hidden_hash',
         'path',
     ];
 

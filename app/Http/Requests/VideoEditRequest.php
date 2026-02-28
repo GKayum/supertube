@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\VideoStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VideoEditRequest extends FormRequest
@@ -25,6 +26,7 @@ class VideoEditRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2048',
             'preview' => 'file|mimetypes:image/jpeg,image/jpg,image/png,image/webp|max:2048',
+            'status' => ['required', 'in:' . implode(',', array_keys(VideoStatus::userAvialable()))]
         ];
     }
 }

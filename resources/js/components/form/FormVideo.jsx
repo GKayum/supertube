@@ -1,8 +1,12 @@
+import { useEffect, useState } from 'react'
+import { api } from '../../services/api'
+
 export default function FormVideo({
     title,
     description,
     previewUrl,
     currentPreviewUrl,
+    status,
     titleError,
     validationErrors,
     previewError,
@@ -12,6 +16,7 @@ export default function FormVideo({
     onDescriptionChange,
     onPreviewChange,
     onFileChange,
+    onStatusChange,
     showFileInput = true,
     fileError,
     file,
@@ -21,6 +26,14 @@ export default function FormVideo({
     isError,
     uploadProgress
 }) {
+    const [statusOptions, setStatusOptions] = useState([])
+
+    useEffect(() => {
+        api.get('/api/v1/videos/statuses').then(res => {
+            setStatusOptions(res.data)
+        })
+    }, [])
+
     return (
         <>
             <div className="mb-4">
@@ -107,6 +120,32 @@ export default function FormVideo({
 
                 {previewError && (
                     <div className="text-red-500 text-sm mt-2">{previewError}</div>
+                )}
+            </div>
+
+            <div className="mb-4">
+                <label className="block mb-2 font-medium text-gray-700">
+                    Статус видео
+                </label>
+                <select
+                    value={status}
+                    onChange={onStatusChange}
+                    className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
+                        validationErrors.status
+                            ? 'border-red-400 focus:ring-red-400'    
+                            : 'border-gray-300 focus:ring-blue-500'    
+                    }`}
+                >
+                    {Object.entries(statusOptions).map(([key, label]) => (
+                        <option key={key} value={key}>
+                            {label}
+                        </option>
+                    ))}
+                </select>
+                {validationErrors.status && (
+                    <p className="text-red-500 text-sm mt-1">
+                        {validationErrors.status[0]}
+                    </p>
                 )}
             </div>
 

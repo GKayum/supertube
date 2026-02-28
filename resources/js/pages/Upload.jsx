@@ -6,6 +6,7 @@ import FormVideo from '../components/form/FormVideo'
 
 export default function Upload() {
     const [file, setFile] = useState(null)
+    const [status, setStatus] = useState('')
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [uploading, setUploading] = useState(false)
@@ -46,6 +47,8 @@ export default function Upload() {
         setMessage('')
         setIsError(false)
     }
+
+    const handleStatusChange = e => setStatus(e.target.value)
 
     const handlePreviewChange = async (e) => {
         const file = e.target.files[0]
@@ -89,6 +92,7 @@ export default function Upload() {
         const formData = new FormData()
         formData.append('video', file)
         formData.append('title', title)
+        formData.append('status', status)
         formData.append('description', description)
         formData.append('preview', preview)
 
@@ -138,6 +142,8 @@ export default function Upload() {
                 previewError={previewError}
                 uploading={uploading}
                 isEdit={false}
+                status={status}
+                onStatusChange={handleStatusChange}
                 onTitleChange={handleTitleChange}
                 onDescriptionChange={handleDescriptionChange}
                 onPreviewChange={handlePreviewChange}

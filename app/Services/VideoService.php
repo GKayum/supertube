@@ -42,6 +42,7 @@ class VideoService implements VideoServiceContract
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'path' => Storage::url($videoPath),
+                'status' => $validated['status'],
             ]);
 
             foreach ($covers as $cover) {
@@ -87,6 +88,7 @@ class VideoService implements VideoServiceContract
             $video->fill([
                 'title' => $validated['title'],
                 'description' => $validated['description'],
+                'status' => $validated['status'],
             ])->save();
 
             if ($hasCover) {

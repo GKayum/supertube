@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\VideoStatus;
 use Illuminate\Foundation\Http\FormRequest;
 
 class VideoUploadRequest extends FormRequest
@@ -26,6 +27,7 @@ class VideoUploadRequest extends FormRequest
             'description' => 'nullable|string|max:2048',
             'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:25600',
             'preview' => 'required|file|mimetypes:image/jpeg,image/jpg,image/png,image/webp|max:2048',
+            'status' => ['required', 'in:' . implode(',', array_keys(VideoStatus::userAvialable()))]
         ];
     }
 }
