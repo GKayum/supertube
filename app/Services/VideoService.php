@@ -2,9 +2,11 @@
 
 namespace App\Services;
 
+use App\Enums\VideoStatus;
 use App\Helpers\Search;
 use App\Http\Requests\VideoEditRequest;
 use App\Http\Requests\VideoUploadRequest;
+use App\Http\Resources\VideoResource;
 use App\Models\Cover;
 use Illuminate\Http\Request;
 use App\Models\Video;
@@ -124,6 +126,45 @@ class VideoService implements VideoServiceContract
         return [
             'message' => 'Видео успешно отредактировано!',
         ];
+    }
+
+    public function show(string $idOrHiddenHash): VideoResource
+    {
+        $user = auth()->user();
+        $isHash = !is_numeric($idOrHiddenHash) || strlen($idOrHiddenHash) === 16;
+
+        if ($isHash) {
+            $video = Video::where('hidden_hash', $idOrHiddenHash)
+                ->where('status', VideoStatus::Hidden->value)
+                ->firstOrFail();
+            
+            return new VideoResource($video);
+        }
+
+        $video = Video::findOrFail($idOrHiddenHash);
+
+        if ($video->status === VideoStatus::Published->value) {
+            return new VideoResource($video);
+        }
+
+        // Если видео доступно по ссылке и это видео авторизованного пользователя,
+        // то возвращается это видео и по ссылке с идентификатором
+        if (
+            $video->status === VideoStatus::Hidden->value && 
+            $user?->id === $video->user_id
+        ) {
+            return new VideoResource($video);
+        }
+
+        // Приватное видео доступно только владельцу видео
+        if (
+            $video->status === VideoStatus::Private->value &&
+            $user?->id === $video->user_id
+        ) {
+            return new VideoResource($video);
+        }
+
+        abort(404);
     }
 
     public function search(Request $request): LengthAwarePaginator 

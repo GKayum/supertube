@@ -21,6 +21,7 @@ export default function VideoEdit() {
     const [notVideo, setNotVideo] = useState(false)
     const [loading, setLoading] = useState(false)
     const [status, setStatus] = useState('')
+    const [hiddenLink, setHiddenLink] = useState(null)
 
     useEffect(() => {
         async function fetchVideo() {
@@ -32,6 +33,7 @@ export default function VideoEdit() {
                 setDescription(response.data.description)
                 setCurrentPreviewUrl(response.data.preview350 || null)
                 setVideoPath(response.data.path || null)
+                setHiddenLink(response.data.hiddenLink || null)
             } catch (error) {
                 if (error.response && error.response.status === 404) {
                     setNotVideo(true)
@@ -134,6 +136,7 @@ export default function VideoEdit() {
                 showFileInput={false}
                 previewUrl={previewUrl}
                 currentPreviewUrl={currentPreviewUrl}
+                hiddenLink={hiddenLink}
             />
         </div>
     )

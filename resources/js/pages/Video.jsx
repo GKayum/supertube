@@ -34,11 +34,12 @@ export default function Video() {
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const [videoRes, similarRes, commentsRes, likesRes] = await Promise.all([
-                    api.get('/api/v1/videos/' + id),
-                    api.get('/api/v1/videos/' + id + '/similar'),
-                    api.get('/api/v1/videos/' + id + '/comments'),
-                    api.get('/api/v1/videos/' + id + '/likes'),
+                const videoRes = await api.get(`/api/v1/videos/${id}`)
+                const realId = videoRes.data.id
+                const [similarRes, commentsRes, likesRes] = await Promise.all([
+                    api.get('/api/v1/videos/' + realId + '/similar'),
+                    api.get('/api/v1/videos/' + realId + '/comments'),
+                    api.get('/api/v1/videos/' + realId + '/likes'),
                 ])
 
                 setVideo(videoRes.data)

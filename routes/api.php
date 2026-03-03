@@ -18,7 +18,8 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     
-    Route::get('/videos/{id}', [VideoController::class, 'show'])->where('id', '[1-9][0-9]*');
+    Route::get('/videos/{idOrHiddenHash}', [VideoController::class, 'show'])
+        ->where('idOrHiddenHash', '([1-9][0-9]*|[A-Za-z0-9]{16})');
     Route::get('/videos/{id}/similar', [VideoController::class, 'similar'])->where('id', '[1-9][0-9]*');
     Route::get('/videos/{id}/comments', [CommentController::class, 'list'])->where('id', '[1-9][0-9]*');
     Route::get('/videos/{id}/likes', [LikeController::class, 'list'])->where('id', '[1-9][0-9]*');

@@ -2,6 +2,7 @@
 
 namespace App\Http\Resources;
 
+use App\Enums\VideoStatus;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -12,7 +13,7 @@ class VideoResource extends JsonResource
     {
         $previews = $this->covers->keyBy('width');
 
-        return [
+        $data = [
             'id' => $this->id,
             'title' => $this->title,
             'description' => $this->description,
@@ -37,5 +38,14 @@ class VideoResource extends JsonResource
                 'isSubscribed' => $this->user->channel?->subscribers()->where('user_id', Auth::id())->exists(),
             ],
         ];
+
+        if (
+            $request->user()?->id === $this->user_id &&
+            $this->status === VideoStatus::Hidden->value
+        ) {
+            $data['hiddenLink'] = url('/video/' . $this->hidden_hash);
+        }
+
+        return $data;
     }
 }

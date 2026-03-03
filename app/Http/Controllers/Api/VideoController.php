@@ -54,11 +54,9 @@ class VideoController extends Controller
         );
     }
 
-    public function show(int $id) {
-        $video = Video::findOrFail($id);
-
+    public function show(string $idOrHiddenHash) {
         return response()->json(
-            new VideoResource($video)
+            $this->service->show($idOrHiddenHash)
         );
     }
 

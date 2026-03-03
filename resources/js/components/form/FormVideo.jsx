@@ -24,7 +24,8 @@ export default function FormVideo({
     error,
     message,
     isError,
-    uploadProgress
+    uploadProgress,
+    hiddenLink = ''
 }) {
     const [statusOptions, setStatusOptions] = useState([])
 
@@ -148,6 +149,23 @@ export default function FormVideo({
                     </p>
                 )}
             </div>
+
+            {hiddenLink && (
+                <div className="mb-4 px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg flex items-center gap-2 text-blue-800 text-sm">
+                    {/* svg */}
+                    <span>
+                        Видео доступно <b>по ссылке</b>: {" "}
+                        <a 
+                            href={hiddenLink}
+                            className='underline break-all text-blue-700 hover:text-blue-900 transition'
+                            target='_blank'
+                            rel='noopener noreferrer'
+                        >
+                            {hiddenLink}
+                        </a>
+                    </span>
+                </div>
+            )}
 
             <button
                 onClick={onSubmit}
