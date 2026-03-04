@@ -12,4 +12,12 @@ class View extends Model
         'ip',
         'user_agent',
     ];
+
+    public function user() {
+        return $this->hasOne(User::class, 'id', 'user_id');
+    }
+
+    public function video() {
+        return $this->hasOne(Video::class, 'id', 'video_id');
+    }
 }

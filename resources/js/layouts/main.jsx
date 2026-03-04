@@ -17,6 +17,7 @@ import Channel from "../pages/user/Channel";
 import ChannelSettings from "../pages/user/ChannelSettings";
 import Protected from "../components/route/Protected";
 import VideoEdit from "../pages/user/VideoEdit";
+import History from "../pages/user/History";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -44,6 +45,7 @@ export default function Main() {
                             <Route path="/edit/:id" element={<VideoEdit />} />
                             <Route path="/register" element={<Register />} />
                             <Route path="/my-videos" element={<MyVideos />} />
+                            <Route path="/history" element={<History />} />
                         </Route>
                     </Routes>
                 </div>

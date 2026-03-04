@@ -32,6 +32,7 @@ Route::prefix('v1')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
+        Route::get('/videos/history/views', [ViewController::class, 'history']);
         Route::get('/videos/statuses', [VideoController::class, 'statuses']);
         Route::post('/videos/upload', [VideoController::class, 'upload']);
         Route::post('/videos/{id}/edit', [VideoController::class, 'edit'])->where('id', '[1-9][0-9]*');

@@ -1,5 +1,5 @@
 import IconMain from "../icons/main"
-import IconHistory from "../icons/history"
+import IconHistory from "../icons/historyIcon"
 import IconLiked from "../icons/liked"
 import IconSubs from "../icons/subscriptions"
 import IconWatchLater from "../icons/watchLater"
