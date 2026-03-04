@@ -20,6 +20,7 @@ class ChannelResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'name' => $this->user->name,
+            'user_id' => $this->user->id,
             'videos' => VideoResource::collection($this->user->videos()->orderByDesc('id')->get()),
             'subscribers' => $this->subscribers->count(),
         ];

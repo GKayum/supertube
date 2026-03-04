@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import HistoryCard from "../../components/video/cards/HistoryCard";
-import HistoryIcon from "../../icons/historyIcon";
+import HistoryIcon from "../../icons/history";
 import { api, handlerApiError } from "../../services/api"
 import { Link } from "react-router-dom";
 

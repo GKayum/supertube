@@ -1,17 +1,18 @@
 import IconMain from "../icons/main"
-import IconHistory from "../icons/historyIcon"
+import IconHistory from "../icons/history"
 import IconLiked from "../icons/liked"
 import IconSubs from "../icons/subscriptions"
 import IconWatchLater from "../icons/watchLater"
 import { Link, useLocation } from "react-router-dom"
+import { useAuth } from "../contexts/AuthContext"
 
 export default function Sidebar({ open, onClose }) {
     const location = useLocation()
+    const { user } = useAuth()
 
     const menu = [
         {to: "/", label: "Главная", icon: <IconMain />},
         {to: "/history", label: "История", icon: <IconHistory />},
-        {to: "/subscriptions", label: "Подписки", icon: <IconSubs />},
         {to: "/watch-later", label: "Смотреть позже", icon: <IconWatchLater />},
         {to: "/liked", label: "Понравившиеся", icon: <IconLiked />},
     ]
@@ -56,6 +57,46 @@ export default function Sidebar({ open, onClose }) {
                         </li>
                     ))}
                 </ul>
+
+                <div className="my-2 border-t border-gray-200" />
+
+                <ul>
+                    <li>
+                        <Link
+                            to="/channels"
+                            className={`flex items-center px-5 py-3 text-base hover:bg-gray-100 rounded-r-full transition ${location.pathname === "/channels" ? "bg-gray-100 font-semibold" : ""}`}
+                            onClick={onClose}
+                        >
+                            <span className="mr-4"><IconSubs /></span>
+                            Подписки
+                        </Link>
+                    </li>
+                </ul>
+
+                <div className="mt-2 px-3">
+                    <ul className="mt-2 space-y-1">
+                        {user?.subscriptions?.length === 0 ? (
+                            <li className="text-xs text-gray-400 ml-2">Нет подписок</li>
+                        ) : (
+                            user && user.subscriptions.map(channels => (
+                                <li key={channels.id}>
+                                    <Link
+                                        to={`/channel/${channels.user_id}`}
+                                        onClick={onClose}
+                                        className="flex items-center gap-3 px-2 py-1 rounded-lg hover:bg-gray-100 transition"
+                                    >
+                                        <img 
+                                            src={channels.avatar} 
+                                            alt={channels.title}
+                                            className="w-4 h-4 rounded-full object-cover shrink-0 border border-gray-300"
+                                        />
+                                        <span className="truncate text-sm text-gray-800">{channels.title}</span>
+                                    </Link>
+                                </li>
+                            ))
+                        )}
+                    </ul>
+                </div>
             </nav>
         </>
     )

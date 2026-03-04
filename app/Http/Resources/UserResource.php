@@ -25,6 +25,7 @@ class UserResource extends JsonResource
                 'title' => $this->channel?->title,
                 'description' => $this->channel?->description,
             ],
+            'subscriptions' => $this->subscribedChannels,
         ];
     }
 }

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\ChannelResource;
 use App\Models\Subscriber;
 use Illuminate\Http\Request;
 
@@ -38,6 +39,14 @@ class SubscribeController extends Controller
         return response()->json([
             'message' => 'Вы отписались от канала!',
             'subscribers' => Subscriber::where('channel_id', $channelId)->count(),
+        ]);
+    }
+
+    public function channels(Request $request) {
+        return response()->json([
+            'channels' => ChannelResource::collection(
+                $request->user()->subscribedChannels
+            ),
         ]);
     }
 }

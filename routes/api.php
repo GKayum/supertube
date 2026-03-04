@@ -48,6 +48,7 @@ Route::prefix('v1')->group(function () {
             Route::post('/profile/update', [UserController::class, 'update']);
 
             Route::post('/channel/update', [ChannelController::class, 'update']);
+            Route::get('/channels', [SubscribeController::class, 'channels']);
         });
     });
 });
