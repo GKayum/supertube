@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\SubscribeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VideoController;
 use App\Http\Controllers\Api\ViewController;
+use App\Http\Controllers\Api\WatchLaterController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -38,6 +39,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/videos/{id}/edit', [VideoController::class, 'edit'])->where('id', '[1-9][0-9]*');
 
         Route::post('/videos/{id}/comments', [CommentController::class, 'create'])->where('id', '[1-9][0-9]*');
+        Route::post('/videos/{id}/watch-later', [WatchLaterController::class, 'save'])->where('id', '[1-9][0-9]*');
 
         Route::post('/channel/{id}/subscribe', [SubscribeController::class, 'subscribe'])->where('id', '[1-9][0-9]*');
         Route::post('/channel/{id}/unsubscribe', [SubscribeController::class, 'unsubscribe'])->where('id', '[1-9][0-9]*');
@@ -49,6 +51,7 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/channel/update', [ChannelController::class, 'update']);
             Route::get('/channels', [SubscribeController::class, 'channels']);
+            Route::get('/watch-later', [WatchLaterController::class, 'list']);
         });
     });
 });

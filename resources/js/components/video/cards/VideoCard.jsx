@@ -1,19 +1,20 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import Avatar from "../../user/Avatar";
+import VideoMenu from "../VideoMenu";
 
-export default function VideoCard({ video }) {
+export default function VideoCard({ video, setToast }) {
     const [hovered, setHovered] = useState()
 
     return (
         <div 
-            className="w-[258px] bg-white rounded-lg shadow-sm hover:shadow-md transition overflow-hidden flex flex-col"
+            className="w-[258px] bg-white rounded-lg shadow-sm hover:shadow-md transition flex flex-col group"
             onMouseEnter={() => setHovered(true)}
             onMouseLeave={() => setHovered(false)}
         >
 
             <Link to={`/video/${video.id}`}>
-                <div className="relative w-full h-[145px] bg-gray-200 overflow-hidden">
+                <div className="relative w-full h-[145px] rounded-t-lg bg-gray-200 overflow-hidden">
                     {hovered ? (
                         <video 
                             src={video.path}
@@ -36,12 +37,12 @@ export default function VideoCard({ video }) {
                 </div>
             </Link>
 
-            <div className="grid grid-cols-6 items-start gap-3 p-3 pb-2">
+            <div className="grid grid-cols-[32px,1fr,24px] items-start gap-x-3 p-3 pb-2">
                 <div className="block w-8 h-8">
                     <Avatar user={video.user} />
                 </div>
 
-                <div className="flex flex-col min-w-0 col-span-5">
+                <div className="flex flex-col min-w-0">
                     <Link
                         to={`/video/${video.id}`}
                         className="block font-semibold text-base text-gray-900 leading-snug truncate hover:underline"
@@ -58,7 +59,11 @@ export default function VideoCard({ video }) {
                     </Link>
                 </div>
 
-                <div className="flex items-center gap-1 text-xs text-gray-400 mt-1 col-span-6">
+                <div className="flex justify-end items-start">
+                    <VideoMenu videoId={video.id} setToast={setToast} />
+                </div>
+
+                <div className="flex items-center gap-1 text-xs text-gray-400 mt-1 col-span-3">
                     <svg 
                         className="w-4 h-4 inline-block mr-1"
                         fill="none" 
