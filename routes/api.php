@@ -51,7 +51,9 @@ Route::prefix('v1')->group(function () {
 
             Route::post('/channel/update', [ChannelController::class, 'update']);
             Route::get('/channels', [SubscribeController::class, 'channels']);
+
             Route::get('/watch-later', [WatchLaterController::class, 'list']);
+            Route::post('/watch-later/order', [WatchLaterController::class, 'updateOrder']);
         });
     });
 });

@@ -19,6 +19,7 @@ import Protected from "../components/route/Protected";
 import VideoEdit from "../pages/user/VideoEdit";
 import History from "../pages/user/History";
 import Channels from "../pages/user/Channels";
+import WatchLater from "../pages/user/WatchLater";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -48,6 +49,7 @@ export default function Main() {
                             <Route path="/my-videos" element={<MyVideos />} />
                             <Route path="/history" element={<History />} />
                             <Route path="/channels" element={<Channels />}/>
+                            <Route path="/watch-later" element={<WatchLater />}/>
                         </Route>
                     </Routes>
                 </div>

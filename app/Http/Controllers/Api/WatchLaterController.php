@@ -23,8 +23,40 @@ class WatchLaterController extends Controller
     public function list(Request $request) {
         return response()->json([
             'videos' => VideoResource::collection(
-                WatchLater::with('video')->where('user_id', $request->user()->id)->latest()->get(),
+                WatchLater::with('video')
+                    ->where('user_id', $request->user()->id)
+                    ->orderBy('sort_order')
+                    ->limit(50)
+                    ->get()
+                    ->pluck('video')
+                    ->filter()
             ),
+        ]);
+    }
+
+    public function updateOrder(Request $request) {
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'integer|exists:videos,id',
+        ]);
+
+        $userId = $request->user()->id;
+        $videoIds = $request->input('order');
+
+        $watchLaters = WatchLater::where('user_id', $userId)
+            ->whereIn('video_id', $videoIds)
+            ->get()
+            ->keyBy('video_id');
+        
+        foreach ($videoIds as $index => $videoId) {
+            if (isset($watchLaters[$videoId])) {
+                $watchLaters[$videoId]->sort_order = $index;
+                $watchLaters[$videoId]->save();
+            }
+        }
+
+        return response()->json([
+            'message' => 'Порядок видео обновлен',
         ]);
     }
 }
