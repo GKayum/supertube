@@ -2,7 +2,7 @@ import { Link } from "react-router-dom"
 import DotsMenu from "../VideoMenu"
 import { Draggable } from "@hello-pangea/dnd"
 
-export default function VideoCardLater({ video, idx }) {
+export default function VideoCardLater({ video, idx, setToast, setVideos }) {
     return (
         <Draggable key={video.id} draggableId={String(video.id)} index={idx}>
             {(provided, snapshot) => (
@@ -45,7 +45,7 @@ export default function VideoCardLater({ video, idx }) {
                         </div>
                     </div>
                     <div className="ml-4 mr-4">
-                        <DotsMenu videoId={video.id} />
+                        <DotsMenu videoId={video.id} setToast={setToast} inWatchLater={true} setVideos={setVideos} />
                     </div>
                 </li>
             )}

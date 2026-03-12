@@ -20,6 +20,7 @@ import VideoEdit from "../pages/user/VideoEdit";
 import History from "../pages/user/History";
 import Channels from "../pages/user/Channels";
 import WatchLater from "../pages/user/WatchLater";
+import Liked from "../pages/user/Liked";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -50,6 +51,7 @@ export default function Main() {
                             <Route path="/history" element={<History />} />
                             <Route path="/channels" element={<Channels />}/>
                             <Route path="/watch-later" element={<WatchLater />}/>
+                            <Route path="/liked" element={<Liked />}/>
                         </Route>
                     </Routes>
                 </div>

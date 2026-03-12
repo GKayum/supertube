@@ -20,12 +20,24 @@ class WatchLaterController extends Controller
         ]);
     }
 
+    public function delete(int $videoId, Request $request) {
+        WatchLater::where([
+            'user_id' => $request->user()->id,
+            'video_id' => $videoId,
+        ])->delete();
+
+        return response()->json([
+            'message' => 'Видео удалено из списка "Смотреть позже"',
+        ]);
+    }
+
     public function list(Request $request) {
         return response()->json([
             'videos' => VideoResource::collection(
                 WatchLater::with('video')
                     ->where('user_id', $request->user()->id)
                     ->orderBy('sort_order')
+                    ->orderBy('created_at', 'desc')
                     ->limit(50)
                     ->get()
                     ->pluck('video')

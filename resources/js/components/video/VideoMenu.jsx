@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react"
 
-import { useAuth } from "../../contexts/AuthContext"
 import { api } from "../../services/api"
 
 function DotsIcon({ className = "" }) {
@@ -13,8 +12,7 @@ function DotsIcon({ className = "" }) {
     )
 }
 
-export default function VideoMenu({ videoId, setToast }) {
-    const { user } = useAuth()
+export default function VideoMenu({ videoId, setToast, inWatchLater = false, setVideos = () => {} }) {
     const [open, setOpen] = useState(false)
     const menuRef = useRef()
     const btnRef = useRef()
@@ -37,6 +35,14 @@ export default function VideoMenu({ videoId, setToast }) {
 
                 setToast({visible: true, message: response.data.message, type: 'info'})
             }
+
+            if (action === 'removeWatchLater') {
+                await api.get('/sanctum/csrf-cookie')
+                const response = await api.delete(`/api/v1/videos/${videoId}/watch-later`)
+
+                setVideos(videos => videos.filter(video => video.id !== videoId))
+                setToast({ visible: true, message: response.data.message, type: 'info' })
+            }
         } catch (error) {
             let msg = error.response?.status === 401 ? 'Авторизуйтесь или зарегистрируйтесь!' : error.toString()
             setToast({visible: true, message: msg, type: 'error'})
@@ -44,7 +50,9 @@ export default function VideoMenu({ videoId, setToast }) {
     }
 
     const actions = [
-        { key: 'watchLater', label: 'Смотреть позже'},
+        inWatchLater
+            ? { key: 'removeWatchLater', label: 'Удалить из списка' }
+            : { key: 'watchLater', label: 'Смотреть позже'},
         { key: 'notInterested', label: 'Не интересует'},
         { key: 'complain', label: 'Пожаловаться'},
     ]

@@ -13,11 +13,7 @@ class Like extends Model
         'result',
     ];
 
-    // public function user() {
-    //     return $this->hasOne(User::class, 'id', 'video_id');
-    // }
-
     public function video() {
-        return $this->hasOne(User::class, 'id', 'video_id');
+        return $this->hasOne(Video::class, 'id', 'video_id');
     }
 }

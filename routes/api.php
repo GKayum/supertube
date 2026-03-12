@@ -40,6 +40,7 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/videos/{id}/comments', [CommentController::class, 'create'])->where('id', '[1-9][0-9]*');
         Route::post('/videos/{id}/watch-later', [WatchLaterController::class, 'save'])->where('id', '[1-9][0-9]*');
+        Route::delete('/videos/{id}/watch-later', [WatchLaterController::class, 'delete'])->where('id', '[1-9][0-9]*');
 
         Route::post('/channel/{id}/subscribe', [SubscribeController::class, 'subscribe'])->where('id', '[1-9][0-9]*');
         Route::post('/channel/{id}/unsubscribe', [SubscribeController::class, 'unsubscribe'])->where('id', '[1-9][0-9]*');
@@ -54,6 +55,8 @@ Route::prefix('v1')->group(function () {
 
             Route::get('/watch-later', [WatchLaterController::class, 'list']);
             Route::post('/watch-later/order', [WatchLaterController::class, 'updateOrder']);
+
+            Route::get('/liked', [LikeController::class, 'liked']);
         });
     });
 });

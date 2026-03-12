@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\VideoResource;
 use App\Models\Like;
 use Illuminate\Http\Request;
 
@@ -48,6 +49,23 @@ class LikeController extends Controller
 
     public function list(int $videoId, Request $request) {
         return $this->getResponse($videoId);
+    }
+
+    public function liked(Request $request) {
+        return response()->json([
+            'videos' => VideoResource::collection(
+                Like::with('video')
+                    ->where([
+                        'user_id' => $request->user()->id,
+                        'result' => 1,
+                    ])
+                    ->orderByDesc('id')
+                    ->limit(50)
+                    ->get()
+                    ->pluck('video')
+                    ->filter()
+            ),
+        ]);
     }
 
     private function getResponse(int $videoId) {

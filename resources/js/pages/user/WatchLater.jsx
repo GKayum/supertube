@@ -17,7 +17,7 @@ export default function WatchLater() {
 
     const saveOrder = async (newVideos) => {
         try {
-            await api.get('/sanctum/csrf-token')
+            await api.get('/sanctum/csrf-cookie')
             const response = await api.post('/api/v1/user/watch-later/order', { order: newVideos.map(v => v.id) })
             setToast({ visible: true, message: response.data.message })
         } catch (error) {
@@ -61,7 +61,7 @@ export default function WatchLater() {
                             ref={provided.innerRef}
                         >
                             {videos.map((video, idx) => (
-                                <VideoCardLater key={video.id} video={video} idx={idx} />
+                                <VideoCardLater key={video.id} video={video} idx={idx} setToast={setToast} setVideos={setVideos} />
                             ))}
                             {provided.placeholder}
                         </ul>
