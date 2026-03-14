@@ -52,7 +52,6 @@ enum VideoStatus: string
             self::Private,
             self::Hidden,
             self::Archived,
-            self::Deleted,
         ];
 
         $out = [];

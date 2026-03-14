@@ -10,7 +10,7 @@ export default function VideoEdit() {
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [preview, setPreview] = useState(null)
-    const [previewUrl, setPreviewUrl] = useState(null)
+    const [scheduledAt, setScheduledAt] = useState('')
     const [currentPreviewUrl, setCurrentPreviewUrl] = useState(null)
     const [videoPath, setVideoPath] = useState(null)
     const [uploading, setUploading] = useState(false)
@@ -34,6 +34,7 @@ export default function VideoEdit() {
                 setCurrentPreviewUrl(response.data.preview350 || null)
                 setVideoPath(response.data.path || null)
                 setHiddenLink(response.data.hiddenLink || null)
+                setScheduledAt(response.data.scheduledAt || '')
             } catch (error) {
                 if (error.response && error.response.status === 404) {
                     setNotVideo(true)
@@ -46,35 +47,12 @@ export default function VideoEdit() {
         fetchVideo()
     }, [id])
 
-    const handleTitleChange = e => setTitle(e.target.value)
-    const handleDescriptionChange = e => setDescription(e.target.value)
-    const handleStatusChange = e => setStatus(e.target.value)
-    const handlePreviewChange = e => {
-        const file = e.target.files[0]
-        if (file) {
-            try {
-                const url = URL.createObjectURL(file)
-                setPreview(file)
-                setPreviewUrl(url)
-            } catch (error) {
-                setPreview(null)
-                setPreviewUrl(null)
-            }
-        }
-    }
-
     const handleSave = async () => {
-        let hasError = false
-        if (!title.trim()) {
-            setValidationErrors({title: 'Введите название видео.'})
-            hasError = true
-        }
-        if (hasError) return
-
         const formData = new FormData()
         formData.append('title', title)
         formData.append('status', status)
         formData.append('description', description)
+        formData.append('scheduledAt', scheduledAt)
         if (preview) formData.append('preview', preview)
 
         try {
@@ -123,18 +101,19 @@ export default function VideoEdit() {
                 description={description}
                 validationErrors={validationErrors}
                 uploading={uploading}
+                scheduledAt={scheduledAt}
                 isEdit={true}
                 status={status}
-                onStatusChange={handleStatusChange}
-                onTitleChange={handleTitleChange}
-                onDescriptionChange={handleDescriptionChange}
-                onPreviewChange={handlePreviewChange}
+                setStatus={setStatus}
+                setTitle={setTitle}
+                setDescription={setDescription}
+                setPreview={setPreview}
+                setScheduledAt={setScheduledAt}
                 onSubmit={handleSave}
                 error={error}
                 message={message}
                 isError={isError}
                 showFileInput={false}
-                previewUrl={previewUrl}
                 currentPreviewUrl={currentPreviewUrl}
                 hiddenLink={hiddenLink}
             />

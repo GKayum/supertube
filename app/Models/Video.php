@@ -13,6 +13,7 @@ class Video extends Model
         'status',
         'hidden_hash',
         'path',
+        'scheduled_at',
     ];
 
     public function covers() {

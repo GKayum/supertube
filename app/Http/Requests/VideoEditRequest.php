@@ -26,7 +26,8 @@ class VideoEditRequest extends FormRequest
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2048',
             'preview' => 'file|mimetypes:image/jpeg,image/jpg,image/png,image/webp|max:2048',
-            'status' => ['required', 'in:' . implode(',', array_keys(VideoStatus::userAvialable()))]
+            'status' => ['required', 'in:' . implode(',', array_keys(VideoStatus::userAvialable()))],
+            'scheduledAt' => 'nullable|date|after:now|required_if:status,scheduled',
         ];
     }
 }

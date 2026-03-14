@@ -14,6 +14,7 @@ use App\Services\Contracts\CoverServiceContract;
 use App\Services\Contracts\VideoServiceContract;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -45,6 +46,7 @@ class VideoService implements VideoServiceContract
                 'description' => $validated['description'],
                 'path' => Storage::url($videoPath),
                 'status' => $validated['status'],
+                'scheduled_at' => $validated['scheduledAt'] ?? null,
             ]);
 
             foreach ($covers as $cover) {
@@ -91,6 +93,7 @@ class VideoService implements VideoServiceContract
                 'title' => $validated['title'],
                 'description' => $validated['description'],
                 'status' => $validated['status'],
+                'scheduled_at' => $validated['scheduledAt'] ?? null,
             ])->save();
 
             if ($hasCover) {
@@ -130,6 +133,7 @@ class VideoService implements VideoServiceContract
 
     public function show(string $idOrHiddenHash): VideoResource
     {
+        // $user = Auth::user();
         $user = auth()->user();
         $isHash = !is_numeric($idOrHiddenHash) || strlen($idOrHiddenHash) === 16;
 
@@ -147,20 +151,8 @@ class VideoService implements VideoServiceContract
             return new VideoResource($video);
         }
 
-        // Если видео доступно по ссылке и это видео авторизованного пользователя,
-        // то возвращается это видео и по ссылке с идентификатором
-        if (
-            $video->status === VideoStatus::Hidden->value && 
-            $user?->id === $video->user_id
-        ) {
-            return new VideoResource($video);
-        }
-
-        // Приватное видео доступно только владельцу видео
-        if (
-            $video->status === VideoStatus::Private->value &&
-            $user?->id === $video->user_id
-        ) {
+        // Возвращать видео, если является владельцем видео
+        if ($user?->id === $video->user_id) {
             return new VideoResource($video);
         }
 

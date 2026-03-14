@@ -4,21 +4,18 @@ import { api } from '../../services/api'
 export default function FormVideo({
     title,
     description,
-    previewUrl,
     currentPreviewUrl,
     status,
-    titleError,
+    scheduledAt,
     validationErrors,
-    previewError,
     uploading,
     isEdit = false,
-    onTitleChange,
-    onDescriptionChange,
-    onPreviewChange,
-    onFileChange,
-    onStatusChange,
-    showFileInput = true,
-    fileError,
+    setTitle,
+    setDescription,
+    setPreview,
+    setFile,
+    setStatus,
+    setScheduledAt,
     file,
     onSubmit,
     error,
@@ -28,6 +25,27 @@ export default function FormVideo({
     hiddenLink = ''
 }) {
     const [statusOptions, setStatusOptions] = useState([])
+    const [previewUrl, setPreviewUrl] = useState(null)
+    
+    const handleFileChange = (e) => setFile(e.target.files[0])
+    const handleTitleChange = (e) => setTitle(e.target.value)
+    const handleDescriptionChange = (e) => setDescription(e.target.value)
+    const handleStatusChange = e => setStatus(e.target.value)
+
+    const handlePreviewChange = async (e) => {
+        const file = e.target.files[0]
+
+        if (file) {
+            try {
+                const url = URL.createObjectURL(file)
+                setPreview(file)
+                setPreviewUrl(url)
+            } catch (error) {
+                setPreview(null)
+                setPreviewUrl(null)
+            }
+        }
+    }
 
     useEffect(() => {
         api.get('/api/v1/videos/statuses').then(res => {
@@ -42,15 +60,10 @@ export default function FormVideo({
                 <input 
                     type="text"
                     value={title}
-                    onChange={onTitleChange}
-                    className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${titleError || validationErrors.title ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'}`}
+                    onChange={handleTitleChange}
+                    className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${validationErrors.title ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'}`}
                     placeholder="Введите название видео..."
                 />
-                {titleError ? (
-                    <p className="text-red-500 text-sm mt-1">{titleError}</p>
-                ) : (
-                    <p className="text-sm mt-1 invisible">.</p>
-                )}
                 {validationErrors.title && (
                     <p className="text-red-500 text-sm mt-1">{validationErrors.title[0]}</p>
                 )}
@@ -61,7 +74,7 @@ export default function FormVideo({
                 <textarea
                     rows='5'
                     value={description}
-                    onChange={onDescriptionChange}
+                    onChange={handleDescriptionChange}
                     className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${validationErrors.description ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'}`}
                     placeholder="Введите описание видео..."
                 />
@@ -70,27 +83,22 @@ export default function FormVideo({
                 )}
             </div>
 
-            {showFileInput && (
+            {!isEdit && (
                 <div className="mb-4">
                     <label className="block mb-2 font-medium text-gray-700">Выберите файл</label>
                     <input 
                         type="file"
                         accept="video/*"
-                        onChange={onFileChange}
-                        className={`w-full ${fileError ? 'border-red-400' : ''}`}
+                        onChange={handleFileChange}
+                        className={`w-full ${validationErrors.video ? 'border-red-400' : ''}`}
                     />
-                    {fileError ? (
-                        <p className="text-red-500 text-sm mt-1">{fileError}</p>
-                    ) : (
-                        <p className="text-sm mt-1 invisible">.</p>
-                    )}
                     {validationErrors.video && (
                         <p className="text-red-500 text-sm mt-1">{validationErrors.video[0]}</p>
                     )}
                 </div>
             )}
 
-            {(file && showFileInput) && (
+            {(file && !isEdit) && (
                 <div className="mb-4">
                     <video 
                         src={URL.createObjectURL(file)}
@@ -105,7 +113,7 @@ export default function FormVideo({
                 <input 
                     type="file"
                     accept="image/*"
-                    onChange={onPreviewChange}
+                    onChange={handlePreviewChange}
                     className="w-full"
                 />
 
@@ -118,10 +126,6 @@ export default function FormVideo({
                 {validationErrors.preview && (
                     <p className="text-red-500 text-sm mt-1">{validationErrors.preview[0]}</p>
                 )}
-
-                {previewError && (
-                    <div className="text-red-500 text-sm mt-2">{previewError}</div>
-                )}
             </div>
 
             <div className="mb-4">
@@ -130,7 +134,7 @@ export default function FormVideo({
                 </label>
                 <select
                     value={status}
-                    onChange={onStatusChange}
+                    onChange={handleStatusChange}
                     className={`w-full border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 ${
                         validationErrors.status
                             ? 'border-red-400 focus:ring-red-400'    
@@ -138,7 +142,7 @@ export default function FormVideo({
                     }`}
                 >
                     {Object.entries(statusOptions).map(([key, label]) => (
-                        <option key={key} value={key}>
+                        <option key={key} value={key} disabled={isEdit && key === 'scheduled'}>
                             {label}
                         </option>
                     ))}
@@ -149,6 +153,26 @@ export default function FormVideo({
                     </p>
                 )}
             </div>
+
+            {status === 'scheduled' && (
+                <div className="mb-4">
+                    <label className="block mb-2 font-medium text-gray-700">
+                        Дата и время публикации
+                    </label>
+                    <input 
+                        type="datetime-local"
+                        value={scheduledAt}
+                        onChange={e => setScheduledAt(e.target.value)}
+                        className="border rounded p-2 w-full"
+                        min={new Date().toString().slice(0, 16)}
+                    />
+                    {validationErrors?.scheduledAt && (
+                        <p className="text-red-500 text-sm mt-1">
+                            {validationErrors.scheduledAt[0]}
+                        </p>
+                    )}
+                </div>
+            )}
 
             {hiddenLink && (
                 <div className="mb-4 px-4 py-3 bg-blue-50 border border-blue-300 rounded-lg flex items-center gap-2 text-blue-800 text-sm">
