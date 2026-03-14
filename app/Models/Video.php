@@ -2,6 +2,9 @@
 
 namespace App\Models;
 
+use App\Enums\VideoStatus;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 
 class Video extends Model
@@ -15,6 +18,17 @@ class Video extends Model
         'path',
         'scheduled_at',
     ];
+
+    protected $casts = [
+        'scheduled_at' => 'datetime',
+    ];
+
+    public function scopeDueToPublish(Builder $q): Builder
+    {
+        return $q->where('status', VideoStatus::Scheduled)
+            ->whereNotNull('scheduled_at')
+            ->where('scheduled_at', '<=', Carbon::now());
+    }
 
     public function covers() {
         return $this->hasMany(Cover::class);

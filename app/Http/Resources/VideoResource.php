@@ -19,10 +19,12 @@ class VideoResource extends JsonResource
             'description' => $this->description,
             'path' => $this->path,
             'status' => $this->status,
-            'scheduledAt' => $this->scheduled_at,
+            'scheduledAt' => $this->scheduled_at?->format('Y-m-d\TH:i'),
             'views' => $this->views->count(),
             'comments' => $this->comments->count(),
-            'timeAgo' => $this->created_at->diffForHumans(),
+            'timeAgo' => $this->scheduled_at
+                ? $this->scheduled_at->diffForHumans()
+                : $this->created_at->diffForHumans(),
 
             'preview350' => isset($previews[350]) ? $previews[350]->path : null,
             'preview480' => isset($previews[480]) ? $previews[480]->path : null,
