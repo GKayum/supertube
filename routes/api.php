@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChannelController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\LikeController;
+use App\Http\Controllers\Api\PlaylistController;
 use App\Http\Controllers\Api\SubscribeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VideoController;
@@ -44,6 +45,8 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/channel/{id}/subscribe', [SubscribeController::class, 'subscribe'])->where('id', '[1-9][0-9]*');
         Route::post('/channel/{id}/unsubscribe', [SubscribeController::class, 'unsubscribe'])->where('id', '[1-9][0-9]*');
+
+        Route::post('/playlists/store', [PlaylistController::class, 'store']);
 
         Route::prefix('/user')->group(function () {
             Route::get('/profile', [UserController::class, 'profile']);

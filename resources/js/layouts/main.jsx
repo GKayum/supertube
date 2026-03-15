@@ -21,6 +21,7 @@ import History from "../pages/user/History";
 import Channels from "../pages/user/Channels";
 import WatchLater from "../pages/user/WatchLater";
 import Liked from "../pages/user/Liked";
+import Playlist from "../pages/user/Playlist";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -52,6 +53,7 @@ export default function Main() {
                             <Route path="/channels" element={<Channels />}/>
                             <Route path="/watch-later" element={<WatchLater />}/>
                             <Route path="/liked" element={<Liked />}/>
+                            <Route path="/playlist" element={<Playlist />}/>
                         </Route>
                     </Routes>
                 </div>
