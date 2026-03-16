@@ -30,6 +30,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/videos/{id}/view/increment', [ViewController::class, 'increment'])->where('id', '[1-9][0-9]*');
 
     Route::get('/channel/{id}', [ChannelController::class, 'show'])->where('id', '[1-9][0-9]*');
+    Route::get('/channel/{id}/playlists', [ChannelController::class, 'playlists'])->where('id', '[1-9][0-9]*');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ChannelResource;
+use App\Http\Resources\PlaylistResource;
 use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -47,5 +48,11 @@ class ChannelController extends Controller
         return response()->json(
             new UserResource($channelOwn)
         );
+    }
+
+    public function playlists(int $userId, Request $request) {
+        $channelOwn = User::query()->findOrFail($userId);
+
+        return PlaylistResource::collection($channelOwn->playlists);
     }
 }

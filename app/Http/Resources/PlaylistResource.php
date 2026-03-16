@@ -22,7 +22,8 @@ class PlaylistResource extends JsonResource
             'cover' => $this->videos->first()?->covers->first()?->path,
             'user' => new UserResource($this->whenLoaded('user')),
             'videos' => VideoResource::collection($this->whenLoaded('videos')),
-            'created_at' => $this->created_at?->toISOString(),
+            'timeAgo' => $this->updated_at?->diffForHumans(),
+            'videoCount' => $this->whenLoaded('videos')->count(),
         ];
     }
 }

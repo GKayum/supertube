@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { api, handlerApiError } from '../../services/api'
 import NotFound from '../404'
 import ChannelVideoCard from "../../components/video/cards/ChannelVideoCard";
+import PlaylistCard from "../../components/playlist/PlaylistCard";
 
 const TABS = [
     { key: 'videos',    label: 'Видео' },
@@ -20,6 +21,18 @@ export default function Channel() {
     const [notChannel, setNotChannel] = useState(false)
     const [showFullDescription, setShowFullDescription] = useState(false)
     const [activeTab, setActiveTab] = useState('videos')
+
+    const [playlists, setPlaylists] = useState([])
+    const [playlistsLoading, setPlaylistsLoading] = useState(false)
+    const [playlistsFetched, setPlaylistsFetched] = useState(false)
+    const [playlistsError, setPlaylistsError] = useState('')
+
+    useEffect(() => {
+        setPlaylists([])
+        setPlaylistsLoading(false)
+        setPlaylistsFetched(false)
+        setPlaylistsError('')
+    }, [id])
 
     useEffect(() => {
         fetchChannel()
@@ -41,6 +54,26 @@ export default function Channel() {
         }
     }
 
+    useEffect(() => {
+        if (activeTab !== 'playlists' || playlistsFetched || playlistsLoading) return
+
+        const run = async () => {
+            setPlaylistsLoading(true)
+            setPlaylistsError('')
+            try {
+                const response = await api.get(`/api/v1/channel/${id}/playlists`)
+                
+                setPlaylists(response.data.data || [])
+                setPlaylistsFetched(true)
+            } catch (error) {
+                setPlaylistsError('Не удалось загрузить плейлисты')
+            } finally {
+                setPlaylistsLoading(false)
+            }
+        }
+        run()
+    }, [activeTab, id, playlistsFetched, playlistsLoading])
+
     if (loading) {
         return <p className="text-center text-gray-500 mt-10">Загрузка данных...</p>
     }
@@ -49,6 +82,7 @@ export default function Channel() {
         return <NotFound />
     }
 
+    // Обрезка описания
     const description = channel.description || ''
     const isLongDescription = description.length > 500
     const shortDescription = isLongDescription ? description.slice(0, 500) + '...' : description
@@ -57,7 +91,7 @@ export default function Channel() {
         <main className="bg-white rounded shadow">
 
             <div className="relative h-48 md:h-60 bg-gray-200 overflow-hidden">
-                <img src="/" alt="Обложка канала" className="w-full h-full object-cover"/>
+                <img src="https://via.placeholder.com/1200x300" alt="Обложка канала" className="w-full h-full object-cover"/>
             </div>
 
             <div className="relative px-4">
@@ -123,7 +157,25 @@ export default function Channel() {
                     )
                 )}
                 {activeTab === 'playlists' && (
-                    <div>Плейлисты...</div>
+                    <>
+                        {playlistsLoading && <div className="text-gray-500">Загрузка плейлистов...</div>}
+
+                        {!playlistsLoading && playlistsError && (
+                            <div className="text-red-500">{playlistsError}</div>
+                        )}
+
+                        {!playlistsLoading && !playlistsError && (
+                            playlists.length === 0
+                                ? <div className="text-gray-500">На канале нет плейлистов</div>
+                                : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
+                                        {playlists.map(pl => (
+                                            <PlaylistCard playlist={pl} />
+                                        ))}
+                                    </div>
+                                )
+                        )}
+                    </>
                 )}
                 {activeTab === 'shorts' && (
                     <div>Шортсы...</div>
