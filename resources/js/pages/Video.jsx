@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 
 import { useAuth } from '../contexts/AuthContext'
 import { api } from '../services/api'
@@ -11,6 +11,9 @@ import ViewTracker from "../components/wrappers/ViewTracker";
 import Avatar from "../components/user/Avatar";
 import NotFound from "./404";
 import Toast from "../components/form/Toast";
+import { usePlaylist } from "../components/playlist/usePlaylist";
+import PlaylistTopbar from "../components/playlist/PlaylistTopbar";
+import PlaylistSidebar from "../components/playlist/PlaylistSideBar";
 
 export default function Video() {
     const { id } = useParams()
@@ -30,28 +33,78 @@ export default function Video() {
     const [subLoading, setSubLoading] = useState(false)
     const [subscribers, setSubscribers] = useState(0)
     const [toast, setToast] = useState({visible: false, message: '', type: 'info'})
+    const [searchParams] = useSearchParams()
+    const listId = searchParams.get('list')
+    const navigate = useNavigate()
+
+    const {
+        playlist,
+        items: playlistItems,
+        loading: loadingPlaylist,
+        activeIndex,
+        count: playlistCount,
+        title: playlistTitle
+    } = usePlaylist(listId, video.id)
+
+    const navigateToVideoInPlaylist = (targetVideoId) => {
+        if (String(targetVideoId) === String(video.id)) return
+        
+        const next = new URLSearchParams(searchParams)
+
+        if (listId) next.set('list', listId)
+
+        navigate(`/video/${targetVideoId}?${next.toString()}`, { replace: false })
+    }
+
+    const goPrev = () => {
+        if (activeIndex > 0) navigateToVideoInPlaylist(playlistItems[activeIndex - 1].id)
+    }
+
+    const goNext = () => {
+        if (activeIndex >= 0 && activeIndex < playlistCount - 1) {
+            navigateToVideoInPlaylist(playlistItems[activeIndex + 1].id)
+        }
+    }
+
+    // Подписка
+    const processSubs = async (type, isSubscribed) => {
+        setSubLoading(true)
+        try {
+            const response = await api.post(`/api/v1/channel/${video.channel.id}/${type}`)
+            setIsSubscribed(isSubscribed)
+            setSubscribers(response.data.subscribers)
+        } catch (error) {
+            setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
+        } finally {
+            setSubLoading(false)
+        }
+    }
 
     useEffect(() => {
         const fetchAll = async () => {
             try {
-                const videoRes = await api.get(`/api/v1/videos/${id}`)
-                const realId = videoRes.data.id
+                const response = await api.get(`/api/v1/videos/${id}`)
+                setVideo(response.data)
+                setIsSubscribed(response.data?.channel.isSubscribed)
+                setSubscribers(response.data?.channel.subscribers)
+                setViews(response.data.views)
+                
+                const realId = response.data.id
+                
                 const [similarRes, commentsRes, likesRes] = await Promise.all([
                     api.get('/api/v1/videos/' + realId + '/similar'),
                     api.get('/api/v1/videos/' + realId + '/comments'),
                     api.get('/api/v1/videos/' + realId + '/likes'),
                 ])
 
-                setVideo(videoRes.data)
                 setSimilarVideos(similarRes.data)
-                setIsSubscribed(videoRes.data.channel?.isSubscribed)
-                setSubscribers(videoRes.data.channel?.subscribers)
                 setComments(commentsRes.data.comments)
                 setCommentsCount(commentsRes.data.count)
                 setLikesCount(likesRes.data.likes)
                 setDislikesCount(likesRes.data.dislikes)
-                setViews(videoRes.data.views)
             } catch (error) {
+                console.log(error);
+                
                 if (error.response && error.response.status === 404) {
                     setNotVideo(true)
                 }
@@ -81,19 +134,6 @@ export default function Video() {
         }
     }
 
-    const processSubs = async (type, isSubscribed) => {
-        setSubLoading(true)
-        try {
-            const response = await api.post(`/api/v1/channel/${video.channel.id}/${type}`)
-            setIsSubscribed(isSubscribed)
-            setSubscribers(response.data.subscribers)
-        } catch (error) {
-            setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
-        } finally {
-            setSubLoading(false)
-        }
-    }
-
     if (loading) {
         return
     }
@@ -112,17 +152,27 @@ export default function Video() {
 
             {/* Левая колонка - основное видео и информация */}
             <div className="flex-1 min-w-0">
-                {loading ? (
+                {loading || userLoading ? (
                     // <p className="text-gray-500">Загрузка видео...</p>
                     <div style={{backgroundColor: '#262627'}} className="w-full aspect-video rounded-xl"></div>
                 ) : (
-                    <ViewTracker videoId={video.id} initialViews={views}>
+                    <ViewTracker key={video.id} videoId={video.id} initialViews={views}>
                         {({views, handlePlay}) => (
                             <>
+                                {listId && (
+                                    <PlaylistTopbar 
+                                        title={playlistTitle}
+                                        activeIndex={activeIndex}
+                                        count={playlistCount}
+                                        onPrev={goPrev}
+                                        onNext={goNext}
+                                    />
+                                )}
+
                                 {/* Видео плеер */}
-                                <div className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
+                                <div key={`player-${video.id}`} className="w-full aspect-video bg-black rounded-xl overflow-hidden shadow-lg">
                                     <video
-                                        key={video.id}
+                                        key={`video-${video.id}`}
                                         className="w-full h-full"
                                         controls
                                         muted={false}
@@ -143,7 +193,6 @@ export default function Video() {
                                 <div className="mt-2 flex justify-between items-center">
                                     <div className="flex items-center space-x-4">
                                         <Avatar user={video.user} />
-
                                         <div>
                                             <p className="text-gray-900 font-medium">{video.user.name}</p>
                                             <p className="text-sm text-gray-500">{subscribers ?? 0} подписчиков</p>
@@ -235,6 +284,15 @@ export default function Video() {
 
             {/* Правая колонка - список похожих видео */}
             <aside className="w-full lg:w-80 shrink-0">
+                {listId && playlistTitle && (
+                    <PlaylistSidebar
+                        playlist={playlist}
+                        currentVideoId={video.id}
+                        loading={loadingPlaylist}
+                        onSelectVideo={navigateToVideoInPlaylist}
+                    />
+                )}
+
                 <h3 className="text-lg font-semibold text-gray-800 mb-4">
                     Другие видео
                 </h3>

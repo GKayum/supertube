@@ -1,12 +1,12 @@
 import { Link } from "react-router-dom"
 
 export default function PlaylistCard({ playlist, needShowChannel = false }) {
-    const { id, title, videoCount, timeAgo, cover, user } = playlist
+    const { id, title, videoCount, timeAgo, cover, user, firstVideoId } = playlist
 
     return (
         <div className="group rounded-xl overflow-hidden bg-white shadow-sm hover:shadow-md transition border border-gray-100">
             <Link
-                to={`/playlist/${id}`}
+                to={`/video/${firstVideoId}?list=${id}`}
                 className="relative block w-full aspect-video bg-gray-200 overflow-hidden"
             >
                 <img 
@@ -30,7 +30,7 @@ export default function PlaylistCard({ playlist, needShowChannel = false }) {
 
             <div className="p-3">
                 <Link
-                    to={`/playlist/${id}`}
+                    to={`/video/${firstVideoId}?list=${id}`}
                     className="block text-base font-semibold text-gray-900 leading-snug line-clamp-2 hover:text-red-600 transition"
                     title={title}
                 >

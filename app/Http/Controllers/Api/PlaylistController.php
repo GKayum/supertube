@@ -44,4 +44,10 @@ class PlaylistController extends Controller
 
         return new PlaylistResource($pl);
     }
+
+    public function show(int $id) {
+        return new PlaylistResource(
+            Playlist::where('id', $id)->firstOrFail()
+        );
+    }
 }

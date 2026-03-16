@@ -186,7 +186,7 @@ export default function Playlist() {
                                     <div className="px-3 py-2 text-sm bg-gray-50 border-b rounded-t-2xl">
                                         Все видео
                                     </div>
-                                    <div className="max-h-[440px] overflow-auto divide-y">
+                                    <div className="max-h-[440px] overflow-auto divide-y [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-400">
                                         {loadingVideos ? (
                                             <div className="p-3 text-sm text-gray-500">Загрузка...</div>
                                         ) : filtered.length === 0 ? (
@@ -217,7 +217,7 @@ export default function Playlist() {
                                                 <ul
                                                     ref={provided.innerRef}
                                                     {...provided.droppableProps}
-                                                    className="max-h-[440px] overflow-auto divide-y"
+                                                    className="max-h-[440px] overflow-auto divide-y [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-400"
                                                 >
                                                     {orderedIds.length === 0 && (
                                                         <li className="p-3 text-sm text-gray-500">
