@@ -78,7 +78,7 @@ export default function Sidebar({ open, onClose }) {
                         {user?.subscriptions?.length === 0 ? (
                             <li className="text-xs text-gray-400 ml-2">Нет подписок</li>
                         ) : (
-                            user && user.subscriptions.map(channels => (
+                            user && user?.subscriptions?.map(channels => (
                                 <li key={channels.id}>
                                     <Link
                                         to={`/channel/${channels.user_id}`}

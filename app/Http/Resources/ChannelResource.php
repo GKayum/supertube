@@ -17,6 +17,7 @@ class ChannelResource extends JsonResource
         return [
             'id' => $this->id,
             'avatar' => $this->avatar,
+            'cover' => $this->covers()->where('height', 240)->where('width', 1200)->first()?->path,
             'title' => $this->title,
             'description' => $this->description,
             'name' => $this->user->name,

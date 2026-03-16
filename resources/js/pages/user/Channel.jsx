@@ -91,7 +91,11 @@ export default function Channel() {
         <main className="bg-white rounded shadow">
 
             <div className="relative h-48 md:h-60 bg-gray-200 overflow-hidden">
-                <img src="https://via.placeholder.com/1200x300" alt="Обложка канала" className="w-full h-full object-cover"/>
+                <img 
+                    src={channel.cover} 
+                    alt="Обложка канала" 
+                    className="w-full h-full object-cover"
+                />
             </div>
 
             <div className="relative px-4">
