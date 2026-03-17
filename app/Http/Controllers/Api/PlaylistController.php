@@ -11,6 +11,10 @@ use Illuminate\Support\Facades\DB;
 
 class PlaylistController extends Controller
 {
+    public function index(Request $request) {
+        return PlaylistResource::collection(Playlist::where('user_id', $request->user()->id)->get());
+    }
+
     public function store(StorePlaylistRequest $request) {
         $data = $request->validated();
         $attach = [];

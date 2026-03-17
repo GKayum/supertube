@@ -22,6 +22,7 @@ import Channels from "../pages/user/Channels";
 import WatchLater from "../pages/user/WatchLater";
 import Liked from "../pages/user/Liked";
 import Playlist from "../pages/user/Playlist";
+import MyPlaylists from "../pages/user/MyPlaylists";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -55,6 +56,7 @@ export default function Main() {
                             <Route path="/liked" element={<Liked />}/>
                             <Route path="/playlist" element={<Playlist />}/>
                             <Route path="/playlist/:playlistId" element={<Playlist />}/>
+                            <Route path="/my-playlists" element={<MyPlaylists />}/>
                         </Route>
                     </Routes>
                 </div>

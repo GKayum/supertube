@@ -92,7 +92,7 @@ export default function Header({ onSideBarClick }) {
                                 <div className="relative">
                                     <button
                                         onClick={() => setDropdownOpen(prev => !prev)}
-                                        className="flex items-center space-x-2 focus:outline-none"
+                                        className="flex items-center space-x-2 focus:outline-none cursor-pointer"
                                     >
                                         <Avatar user={user} />
                                         <span className="text-gray-800 font-medium">
@@ -102,50 +102,78 @@ export default function Header({ onSideBarClick }) {
 
                                     {dropdownOpen && (
                                         <div 
-                                            className="absolute right-0 mt-2 w-44 bg-white border border-gray-200 shadow-lg rounded-md overflow-hidden z-20"
+                                            className="absolute right-0 mt-2 w-52 bg-white border border-gray-200 shadow-lg rounded-md overflow-hidden z-20"
                                             onMouseLeave={() => setDropdownOpen(false)}
                                         >
+                                            {/* Блок "Мои" */}
+                                            <div className="px-4 py-2 text-xs text-gray-500 font-semibold uppercase">
+                                                Мои
+                                            </div>
                                             <Link
                                                 to='/my-videos'
-                                                className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
+                                                className="block px-6 py-2 text-gray-800 hover:bg-gray-100"
                                                 onClick={() => setDropdownOpen(false)}
                                             >
-                                                Мои видео
-                                            </Link>
-                                            <Link 
-                                                to='/upload' 
-                                                className="block px-4 py-2 text-gray-800 hover:bg-gray-100"
-                                                onClick={() => setDropdownOpen(false)}
-                                            >
-                                                Загрузить
+                                                Видео
                                             </Link>
                                             <Link
+                                                to='/my-playlists'
+                                                className="block px-6 py-2 text-gray-800 hover:bg-gray-100"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                Плейлисты
+                                            </Link>
+
+                                            {/* Блок "Настройки" */}
+                                            <div className="px-4 py-2 text-xs text-gray-500 font-semibold uppercase border-t border-gray-100">
+                                                Настройки
+                                            </div>
+                                            <Link
                                                 to='/settings'
-                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                className="block px-6 py-2 text-gray-700 hover:bg-gray-100"
                                                 onClick={() => setDropdownOpen(false)}
                                             >
                                                 Аккаунт
                                             </Link>
                                             <Link
                                                 to='/channel/settings'
-                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                className="block px-6 py-2 text-gray-700 hover:bg-gray-100"
                                                 onClick={() => setDropdownOpen(false)}
                                             >
                                                 Канал
                                             </Link>
+
+                                            {/* Блок "Добавить" */}
+                                            <div className="px-4 py-2 text-xs text-gray-500 font-semibold uppercase border-t border-gray-100">
+                                                Добавить
+                                            </div>
+                                            <Link 
+                                                to='/upload' 
+                                                className="block px-6 py-2 text-gray-800 hover:bg-gray-100"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                + Видео
+                                            </Link>
                                             <Link
                                                 to='/playlist'
-                                                className="block px-4 py-2 text-gray-700 hover:bg-gray-100"
+                                                className="block px-6 py-2 text-gray-700 hover:bg-gray-100"
                                                 onClick={() => setDropdownOpen(false)}
                                             >
                                                 + Плейлист
                                             </Link>
-                                            <button
-                                                onClick={logout} 
-                                                className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
-                                            >
-                                                Выйти
-                                            </button>
+
+                                            {/* Выход */}
+                                            <div className="border-t border-gray-100">
+                                                <button
+                                                    onClick={() => {
+                                                        setDropdownOpen(false)
+                                                        logout()
+                                                    }}
+                                                    className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                                                >
+                                                    Выйти
+                                                </button>
+                                            </div>
                                         </div>
                                     )}
                                 </div>

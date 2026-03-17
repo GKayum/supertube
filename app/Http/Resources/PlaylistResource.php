@@ -25,6 +25,8 @@ class PlaylistResource extends JsonResource
             'timeAgo' => $this->updated_at?->diffForHumans(),
             'videoCount' => $this->videos->count(),
             'firstVideoId' => $this->videos()->orderBy('position')->first()->id,
+            'views' => $this->views()->count(),
+            'videosViews' => $this->videos->loadCount('views')->sum('views_count'),
         ];
     }
 }

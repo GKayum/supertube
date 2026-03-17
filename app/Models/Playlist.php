@@ -23,4 +23,8 @@ class Playlist extends Model
             ->withPivot(['position', 'added_at'])
             ->orderBy('position');
     }
+
+    public function views() {
+        return $this->hasMany(PlaylistView::class);
+    }
 }
