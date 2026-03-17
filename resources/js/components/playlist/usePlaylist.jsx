@@ -1,5 +1,25 @@
 import { useEffect, useMemo, useState } from "react";
 import { api } from "../../services/api"
+import { useSearchParams } from "react-router-dom";
+import { getFingerprint } from '../../services/fingerprint'
+
+function useTrackPlaylistOpen() {
+    const [searchParams] = useSearchParams()
+    const playlistId = searchParams.get('list')
+
+    useEffect(() => {
+        if (!playlistId) return
+
+        (async () => {
+            try {
+                const fingerprint = await getFingerprint()
+                await api.post(`/api/v1/playlists/${playlistId}/view/increment`, { fingerprint })
+            } catch (error) {
+                console.warn('Playlist open track failed', error)
+            }
+        })()
+    }, [playlistId])
+}
 
 export function usePlaylist(listId, currentVideoId) {
     const [playlist, setPlaylist] = useState(null)
@@ -26,6 +46,8 @@ export function usePlaylist(listId, currentVideoId) {
         () => items.findIndex(v => String(v.id) === String(currentVideoId)), 
         [items, currentVideoId]
     )
+
+    useTrackPlaylistOpen()
 
     return {
         playlist,

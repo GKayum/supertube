@@ -34,7 +34,10 @@ export default function VideoEdit() {
                 setCurrentPreviewUrl(response.data.preview350 || null)
                 setVideoPath(response.data.path || null)
                 setHiddenLink(response.data.hiddenLink || null)
-                setScheduledAt(response.data.scheduledAt || '')
+
+                if (response.data.status === 'scheduled') {
+                    setScheduledAt(response.data.scheduledAt || '')
+                }
             } catch (error) {
                 if (error.response && error.response.status === 404) {
                     setNotVideo(true)

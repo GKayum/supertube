@@ -155,7 +155,7 @@ export default function Channel() {
                         ? (<div className="text-gray-500">Нет видео на этом канале</div>)
                         : (<div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 mt-4">
                             {channel.videos.map(video => (
-                                <ChannelVideoCard key={video.id} video={video} />
+                                <ChannelVideoCard key={`video-card-${video.id}`} video={video} />
                             ))}
                         </div>)
                     )

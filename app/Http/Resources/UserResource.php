@@ -19,7 +19,7 @@ class UserResource extends JsonResource
             'channelId' => $this->channel->id,
             'name' => $this->name,
             'email' => $this->email,
-            'videos' => $this->videos,
+            'videos' => $this->publishedVideos,
             'channel' => new ChannelResource($this->channel),
             'subscriptions' => $this->subscribedChannels,
         ];

@@ -7,7 +7,7 @@ export default function SearchCard({ video }) {
 
     return (
         <div
-            key={video.id} 
+            key={`block-${video.id}`} 
             className="flex gap-4 w-full h-[150px] max-w-3xl bg-white rounded-xl shadow hover:shadow-md transition overflow-hidden items-stretch"
         >
             <Link

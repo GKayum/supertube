@@ -7,10 +7,36 @@ use App\Http\Requests\StorePlaylistRequest;
 use App\Http\Resources\PlaylistResource;
 use App\Models\Playlist;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 
 class PlaylistController extends Controller
 {
+    public function incrementView(int $id, Request $request) {
+        $playlist = Playlist::query()->where('id', $id)->firstOrFail();
+        $fingerprint = (string) $request->input('fingerprint', '');
+        $userId = $request->user()?->id;
+
+        $key = 'pl-open:' . $playlist->id . ':' .
+            sha1(($userId ?: $request->ip()) . '|' . $fingerprint . '|' .
+                substr($request->userAgent() ?? '', 0, 120));
+        
+        if (Cache::has($key)) {
+            return response()->noContent();
+        }
+
+        $playlist->views()->create([
+            'user_id' => $userId,
+            'ip' => $request->ip(),
+            'user_agent' => $request->userAgent(),
+            'fingerprint' => $fingerprint,
+        ]);
+
+        Cache::put($key, true, now()->addMinutes(3));
+
+        return response()->noContent();
+    }
+
     public function index(Request $request) {
         return PlaylistResource::collection(Playlist::where('user_id', $request->user()->id)->get());
     }

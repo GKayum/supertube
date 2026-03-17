@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\VideoStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Playlist extends Model
@@ -26,5 +27,9 @@ class Playlist extends Model
 
     public function views() {
         return $this->hasMany(PlaylistView::class);
+    }
+
+    public function publishedVideos() {
+        return $this->videos()->where('videos.status', VideoStatus::Published->value);
     }
 }

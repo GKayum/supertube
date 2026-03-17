@@ -61,7 +61,7 @@ class VideoController extends Controller
     }
 
     public function similar(int $id) {
-        $videos = Video::where('id', '!=', $id)->take(20)->get();
+        $videos = Video::query()->where('status', VideoStatus::Published->value)->latest()->get();
 
         return response()->json(
             VideoResource::collection($videos)

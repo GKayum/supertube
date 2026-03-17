@@ -47,6 +47,7 @@ class VideoService implements VideoServiceContract
                 'path' => Storage::url($videoPath),
                 'status' => $validated['status'],
                 'scheduled_at' => $validated['scheduledAt'] ?? null,
+                'hidden_hash' => Str::random(16),
             ]);
 
             foreach ($covers as $cover) {
@@ -94,6 +95,7 @@ class VideoService implements VideoServiceContract
                 'description' => $validated['description'],
                 'status' => $validated['status'],
                 'scheduled_at' => $validated['scheduledAt'] ?? null,
+                'hidden_hash' => Str::random(16),
             ])->save();
 
             if ($hasCover) {
@@ -169,6 +171,7 @@ class VideoService implements VideoServiceContract
                         ->orWhere('description', 'like', "%$word%");
                 }
             })
+            ->where('status', VideoStatus::Published->value)
             ->with('user')
             ->orderByDesc('id')
             ->paginate(20);

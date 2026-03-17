@@ -33,6 +33,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/channel/{id}/playlists', [ChannelController::class, 'playlists'])->where('id', '[1-9][0-9]*');
 
     Route::get('/playlist/{id}', [PlaylistController::class, 'show'])->where('id', '[1-9][0-9]*');
+    Route::post('/playlists/{id}/view/increment', [PlaylistController::class, 'incrementView'])->where('id', '[1-9][0-9]*');
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

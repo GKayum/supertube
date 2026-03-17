@@ -19,14 +19,14 @@ class PlaylistResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'status' => $this->status,
-            'cover' => $this->videos()->orderBy('position')->first()?->covers->first()?->path,
+            'cover' => $this->publishedVideos()->orderBy('position')->first()?->covers->first()?->path,
             'user' => new UserResource($this->user),
-            'videos' => VideoResource::collection($this->videos),
+            'videos' => VideoResource::collection($this->publishedVideos),
             'timeAgo' => $this->updated_at?->diffForHumans(),
-            'videoCount' => $this->videos->count(),
-            'firstVideoId' => $this->videos()->orderBy('position')->first()->id,
+            'videoCount' => $this->publishedVideos->count(),
+            'firstVideoId' => $this->publishedVideos()->orderBy('position')->first()->id,
             'views' => $this->views()->count(),
-            'videosViews' => $this->videos->loadCount('views')->sum('views_count'),
+            'videosViews' => $this->publishedVideos->loadCount('views')->sum('views_count'),
         ];
     }
 }
