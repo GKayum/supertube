@@ -14,18 +14,36 @@ export default function PlaylistTopbar({ title, activeIndex, count, onPrev, onNe
             <div className="flex items-center gap-2">
                 <button
                     onClick={onPrev}
-                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm disabled:opacity-50"
+                    className="flex items-end gap-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm disabled:opacity-50"
                     disabled={activeIndex <= 0}
                 >
-                    ◀ Предыдущее
+                    <svg
+                        className="bg-blue-400 rounded p-1"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="#fff"
+                    >
+                        <path d="M19 5a2 2 0 0 0-3.008-1.728l-11.997 6.998a2 2 0 0 0-.003 3.458l12 7A2 2 0 0 0 19 19z" />
+                    </svg>
+                    <span style={{ lineHeight: 'normal' }}>Предыдущее</span>
                 </button>
 
                 <button
                     onClick={onNext}
-                    className="px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm disabled:opacity-50"
+                    className="flex items-end gap-1 px-3 py-1 rounded bg-gray-200 hover:bg-gray-300 text-sm disabled:opacity-50"
                     disabled={activeIndex < 0 || activeIndex >= count - 1}
                 >
-                    ▶ Следующее
+                    <span style={{ lineHeight: 'normal' }}>Следующее</span>
+                    <svg
+                        className="bg-blue-400 rounded p-1"
+                        width="16"
+                        height="16"
+                        viewBox="0 0 24 24"
+                        fill="#fff"
+                    >
+                        <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+                    </svg>
                 </button>
             </div>
         </div>

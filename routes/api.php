@@ -50,6 +50,7 @@ Route::prefix('v1')->group(function () {
         Route::post('/channel/{id}/unsubscribe', [SubscribeController::class, 'unsubscribe'])->where('id', '[1-9][0-9]*');
 
         Route::post('/playlists/store', [PlaylistController::class, 'store']);
+        Route::put('/playlist/{id}/update', [PlaylistController::class, 'update'])->where('id', '[1-9][0-9]*');
 
         Route::prefix('/user')->group(function () {
             Route::get('/profile', [UserController::class, 'profile']);

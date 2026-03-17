@@ -18,8 +18,17 @@ export default function PlaylistCard({ playlist, needShowChannel = false }) {
 
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition" />
                 <div className="absolute bottom-2 left-2 right-2 opacity-0 group-hover:opacity-100 transition">
-                    <div className="w-full bg-white/95 text-gray-900 text-sm font-medium rounded-md py-2 text-center">
-                        ▶ Смотреть плейлист
+                    <div className="w-full bg-white/95 text-gray-900 text-sm font-medium rounded-md py-2 text-center flex justify-center items-center gap-1">
+                        <svg
+                            className="rounded p-1 bg-[#FF0000]"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="#fff"
+                        >
+                            <path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" />
+                        </svg>
+                        <span>Смотреть плейлист</span>
                     </div>
                 </div>
 

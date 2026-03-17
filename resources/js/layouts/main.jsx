@@ -54,6 +54,7 @@ export default function Main() {
                             <Route path="/watch-later" element={<WatchLater />}/>
                             <Route path="/liked" element={<Liked />}/>
                             <Route path="/playlist" element={<Playlist />}/>
+                            <Route path="/playlist/:playlistId" element={<Playlist />}/>
                         </Route>
                     </Routes>
                 </div>
