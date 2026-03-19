@@ -68,14 +68,6 @@ class VideoController extends Controller
         );
     }
 
-    public function search(Request $request) {
-        return response()->json(
-            VideoResource::collection(
-                $this->service->search($request)
-            )
-        );
-    }
-
     public function statuses() {
         return response()->json(
             VideoStatus::userAvialable()

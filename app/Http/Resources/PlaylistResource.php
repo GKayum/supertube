@@ -27,6 +27,7 @@ class PlaylistResource extends JsonResource
             'firstVideoId' => $this->publishedVideos()->orderBy('position')->first()->id,
             'views' => $this->views()->count(),
             'videosViews' => $this->publishedVideos->loadCount('views')->sum('views_count'),
+            'type' => 'playlist',
         ];
     }
 }

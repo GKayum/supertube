@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ChannelController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlaylistController;
+use App\Http\Controllers\Api\SearchController;
 use App\Http\Controllers\Api\SubscribeController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Api\VideoController;
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::get('/videos', [VideoController::class, 'list']);
-    Route::get('/videos/search', [VideoController::class, 'search']);
+    Route::get('/videos/search', [SearchController::class, 'filter']);
 
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
@@ -34,6 +35,8 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/playlist/{id}', [PlaylistController::class, 'show'])->where('id', '[1-9][0-9]*');
     Route::post('/playlists/{id}/view/increment', [PlaylistController::class, 'incrementView'])->where('id', '[1-9][0-9]*');
+
+    Route::get('/search/filters', [SearchController::class, 'filters']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);

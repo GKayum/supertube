@@ -3,18 +3,13 @@
 namespace App\Services;
 
 use App\Enums\VideoStatus;
-use App\Helpers\Search;
 use App\Http\Requests\VideoEditRequest;
 use App\Http\Requests\VideoUploadRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Cover;
-use Illuminate\Http\Request;
 use App\Models\Video;
 use App\Services\Contracts\CoverServiceContract;
 use App\Services\Contracts\VideoServiceContract;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Arr;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -159,22 +154,6 @@ class VideoService implements VideoServiceContract
         }
 
         abort(404);
-    }
-
-    public function search(Request $request): LengthAwarePaginator 
-    {
-        $words = Search::normalize($request->input('q', ''));
-        return Video::query()
-            ->where(function($q) use ($words) {
-                foreach ($words as $word) {
-                    $q->orWhere('title', 'like', "%$word%")
-                        ->orWhere('description', 'like', "%$word%");
-                }
-            })
-            ->where('status', VideoStatus::Published->value)
-            ->with('user')
-            ->orderByDesc('id')
-            ->paginate(20);
     }
 
     private function deleteCover(string $path): bool
