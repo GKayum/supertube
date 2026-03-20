@@ -44,6 +44,18 @@ class SearchService implements SearchServiceContract
                 }
             })
             ->where('status', VideoStatus::Published->value)
+            ->when($request->has('duration'), function ($q) use ($request) {
+                if ($request->get('duration') === 'short') {
+                    $q->where('duration', '<', 10);
+                }
+                if ($request->get('duration') === 'medium') {
+                    $q->where('duration', '>=', 10)
+                        ->where('duration', '<=', 60);
+                }
+                if ($request->get('duration') === 'long') {
+                    $q->where('duration', '>', 60);
+                }
+            })
             ->with('user')
             ->orderByDesc('created_at')
             ->paginate(20);

@@ -25,7 +25,7 @@ class VideoUploadRequest extends FormRequest
         return [
             'title' => 'required|string|max:255',
             'description' => 'nullable|string|max:2048',
-            'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:25600',
+            'video' => 'required|file|mimetypes:video/mp4,video/avi,video/mpeg,video/quicktime|max:112000',
             'preview' => 'required|file|mimetypes:image/jpeg,image/jpg,image/png,image/webp|max:2048',
             'status' => ['required', 'in:' . implode(',', array_keys(VideoStatus::userAvialable()))],
             'scheduledAt' => 'nullable|date|after:now|required_if:status,scheduled',
