@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import DurationBadge from "../DurationBadge";
 
 export default function ChannelVideoCard({ video }) {
     const [hovered, setHovered] = useState(false)
@@ -27,11 +28,14 @@ export default function ChannelVideoCard({ video }) {
                         className="absolute inset-0 w-full object-cover"
                     ></video>
                 ) : (
+                    <>
                     <img 
                         src={video.preview350}
                         alt={video.title}
                         className="absolute inset-0 w-full h-full object-cover"
                     />
+                    <DurationBadge seconds={video.duration} />
+                    </>
                 )}
             </Link>
 

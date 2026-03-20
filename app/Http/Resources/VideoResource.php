@@ -40,6 +40,8 @@ class VideoResource extends JsonResource
                 'subscribers' => $this->user->channel?->subscribers->count() ?? 0,
                 'isSubscribed' => $this->user->channel?->subscribers()->where('user_id', Auth::id())->exists(),
             ],
+
+            'duration' => $this->duration,
         ];
 
         if (

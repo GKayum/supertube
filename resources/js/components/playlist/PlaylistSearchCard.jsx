@@ -63,7 +63,21 @@ export default function PlaylistSearchCard({ playlist }) {
                     <span className="text-gray-300 select-none">•</span>
 
                     <span className="flex items-center gap-1 text-xs text-gray-600">
-                        {/* SVG */}
+                        <svg
+                            className="w-4 h-4"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.6"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M21 5H3" />
+                            <path d="M15 12H3" />
+                            <path d="M17 19H3" />
+                        </svg>
                         {playlist.videoCount ?? 0} видео
                     </span>
 
@@ -71,7 +85,18 @@ export default function PlaylistSearchCard({ playlist }) {
                     <span className="text-gray-300 select-none">•</span>
 
                     <span className="flex items-center gap-1 text-xs text-gray-500">
-                        {/* SVG */}
+                        <svg
+                            className="w-4 h-4"
+                            viewBox="0 0 24 24" 
+                            fill="none" 
+                            stroke="currentColor" 
+                            strokeWidth="1.6" 
+                            strokeLinecap="round" 
+                            strokeLinejoin="round" 
+                        >
+                            <path d="M12 6v6l4 2"/>
+                            <circle cx="12" cy="12" r="10"/>
+                        </svg>
                         {playlist.timeAgo}
                     </span>
                 </div>
@@ -88,6 +113,24 @@ export default function PlaylistSearchCard({ playlist }) {
                         className="inline-flex items-center gap-1 px-2 py-1 text-xs text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded transition"
                     >
                         {/* SVG */}
+                        <svg
+                            className="w-4 h-4"
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                        >
+                            <path d="M3 5h.01" />
+                            <path d="M3 12h.01" />
+                            <path d="M3 19h.01" />
+                            <path d="M8 5h13" />
+                            <path d="M8 12h13" />
+                            <path d="M8 19h13" />
+                        </svg>
                         Смотреть плейлист
                     </Link>
                 </div>

@@ -17,6 +17,7 @@ class Video extends Model
         'hidden_hash',
         'path',
         'scheduled_at',
+        'duration',
     ];
 
     protected $casts = [

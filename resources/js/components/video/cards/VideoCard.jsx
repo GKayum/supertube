@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import Avatar from "../../user/Avatar";
 import VideoMenu from "../VideoMenu";
+import DurationBadge from "../DurationBadge";
 
 export default function VideoCard({ video, setToast }) {
     const [hovered, setHovered] = useState()
@@ -28,11 +29,14 @@ export default function VideoCard({ video, setToast }) {
                             className="absolute inset-0 w-full h-full object-cover" 
                         />
                     ) : (
+                        <>
                         <img 
                             src={video.preview350} 
                             alt={video.title}
                             className="absolute inset-0 w-full h-full object-cover"
                         />
+                        <DurationBadge seconds={video.duration} />
+                        </>
                     )}
                 </div>
             </Link>

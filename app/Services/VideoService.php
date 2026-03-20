@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\VideoStatus;
+use App\Helpers\VideoAnalyzer;
 use App\Http\Requests\VideoEditRequest;
 use App\Http\Requests\VideoUploadRequest;
 use App\Http\Resources\VideoResource;
@@ -18,6 +19,7 @@ class VideoService implements VideoServiceContract
 {
     public function __construct(
         private readonly CoverServiceContract $coverService,
+        private readonly VideoAnalyzer $videoAnalyzer,
     ) {
     }
 
@@ -29,6 +31,7 @@ class VideoService implements VideoServiceContract
         $videoPath = $validated['video']->storeAs('videos', $filename, 'public');
         $paths = [$videoPath];
         $covers = $this->coverService->process($validated['preview']);
+        $duration = $this->videoAnalyzer->getDurationSeconds($videoPath);
 
         // Отключение автосохранения изменений, 
         // позволяет выполнить группу SQL-запросов как одно целое
@@ -43,6 +46,7 @@ class VideoService implements VideoServiceContract
                 'status' => $validated['status'],
                 'scheduled_at' => $validated['scheduledAt'] ?? null,
                 'hidden_hash' => Str::random(16),
+                'duration' => $duration,
             ]);
 
             foreach ($covers as $cover) {

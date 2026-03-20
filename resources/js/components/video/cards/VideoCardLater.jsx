@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom"
 import DotsMenu from "../VideoMenu"
 import { Draggable } from "@hello-pangea/dnd"
+import DurationBadge from "../DurationBadge"
 
 export default function VideoCardLater({ video, idx, setToast, setVideos }) {
     return (
@@ -25,6 +26,7 @@ export default function VideoCardLater({ video, idx, setToast, setVideos }) {
                         className="relative w-64 h-36 bg-gray-200 rounded-lg overflow-hidden block group-hover:ring-2 ring-red-400 transition mr-5"
                     >
                         <img src={video.preview480} alt={video.title} className="absolute inset-0 w-full h-full object-cover" />
+                        <DurationBadge seconds={video.duration} />
                     </Link>
 
                     <div className="flex flex-col flex-1 min-w-0">
