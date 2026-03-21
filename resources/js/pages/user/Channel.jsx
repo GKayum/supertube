@@ -233,6 +233,7 @@ export default function Channel() {
                                                 coverUrl={short.preview480}
                                                 videoUrl={short.path}
                                                 views={short.views ?? 0}
+                                                source={`channel:${id}`}
                                             />
                                         ))}
                                     </div>

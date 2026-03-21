@@ -2,13 +2,13 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import VideoMenu from "../video/VideoMenu";
 
-export default function ShortCard({ id, title, coverUrl, videoUrl, views }) {
+export default function ShortCard({ id, title, coverUrl, videoUrl, views, source = 'home' }) {
     const videoRef = useRef(null)
 
     const playPreview = () => {
         if (videoRef.current) {
             videoRef.current.currentTime = 0
-            videoRef.current.play().catch((err) => {console.log(err)})
+            videoRef.current.play().catch(() => {})
         }
     }
     const stopPreview = () => {
@@ -21,14 +21,14 @@ export default function ShortCard({ id, title, coverUrl, videoUrl, views }) {
     return (
         <div
             key={`short-${id}`} 
-            className="group isolate relative flex aspect=[9/16] flex-col gap-2 w-[180px]"
+            className="group isolate relative flex aspect-9/16 flex-col gap-2 w-[180px]"
             onMouseEnter={playPreview}
             onMouseLeave={stopPreview}
             onFocus={playPreview}
             onBlur={stopPreview}
         >
-            <Link to='/watch' className="block overflow-hidden rounded-xl bg-black shadow">
-                <div className="relative z-0 aspect-[9/16]">
+            <Link to={`/shorts/${id}?list=${source}`} className="block overflow-hidden rounded-xl bg-black shadow">
+                <div className="relative z-0 aspect-9/16">
                     <img 
                         src={coverUrl}
                         alt={title}
@@ -54,7 +54,7 @@ export default function ShortCard({ id, title, coverUrl, videoUrl, views }) {
             
             <div className="relative flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1 z-20">
-                    <Link to="/watch" className="block">
+                    <Link to={`/shorts/${id}?list=${source}`} className="block">
                         <h3
                             className="text-sm font-medium leading-snug text-zinc-900 text-dark line-clamp-2"
                             style={{

@@ -23,6 +23,7 @@ import WatchLater from "../pages/user/WatchLater";
 import Liked from "../pages/user/Liked";
 import Playlist from "../pages/user/Playlist";
 import MyPlaylists from "../pages/user/MyPlaylists";
+import Short from "../pages/Short";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -41,6 +42,7 @@ export default function Main() {
                         <Route path="/register" element={<Register />} />
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/video/:id" element={<Video />} />
+                        <Route path="/shorts/:id" element={<Short />} />
                         <Route path="/search" element={<SearchResultList />} />
                         <Route path="/channel/:id" element={<Channel />} />
                         <Route path="*" element={<NotFound />} />
