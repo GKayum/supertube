@@ -13,9 +13,17 @@ use Illuminate\Support\Facades\Validator;
 class UserController extends Controller
 {
     public function videos(Request $request) {
-        $videos = $request->user()->videos()->with('covers')->latest()->get();
+        $videos = $request->user()->videos()->where('is_short', false)->with('covers')->latest()->get();
         return response()->json(
             VideoResource::collection($videos)
+        );
+    }
+
+    public function show(int $id, Request $request) {
+        $video = $request->user()->videos()->where('id', $id)->firstOrFail();
+
+        return response()->json(
+            new VideoResource($video)
         );
     }
 

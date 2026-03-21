@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
     Route::get('/videos', [VideoController::class, 'list']);
+    Route::get('/videos/shorts', [VideoController::class, 'listShorts']);
     Route::get('/videos/search', [SearchController::class, 'filter']);
 
     Route::post('/login', [AuthController::class, 'login']);
@@ -32,6 +33,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/channel/{id}', [ChannelController::class, 'show'])->where('id', '[1-9][0-9]*');
     Route::get('/channel/{id}/playlists', [ChannelController::class, 'playlists'])->where('id', '[1-9][0-9]*');
+    Route::get('/channel/{id}/shorts', [ChannelController::class, 'shorts'])->where('id', '[1-9][0-9]*');
 
     Route::get('/playlist/{id}', [PlaylistController::class, 'show'])->where('id', '[1-9][0-9]*');
     Route::post('/playlists/{id}/view/increment', [PlaylistController::class, 'incrementView'])->where('id', '[1-9][0-9]*');
@@ -59,6 +61,7 @@ Route::prefix('v1')->group(function () {
         Route::prefix('/user')->group(function () {
             Route::get('/profile', [UserController::class, 'profile']);
             Route::get('/videos', [UserController::class, 'videos']);
+            Route::get('/videos/{id}', [UserController::class, 'show'])->where('id', '[1-9][0-9]*');
             Route::post('/profile/update', [UserController::class, 'update']);
 
             Route::post('/channel/update', [ChannelController::class, 'update']);

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react"
+import { useAuth } from "../../contexts/AuthContext"
 
 import { api } from "../../services/api"
 
@@ -12,14 +13,17 @@ function DotsIcon({ className = "" }) {
     )
 }
 
-export default function VideoMenu({ videoId, setToast, inWatchLater = false, setVideos = () => {} }) {
+export default function VideoMenu({ videoId, setToast, inWatchLater = false, setVideos = () => {}, forShort = false }) {
+    const { user } = useAuth()
     const [open, setOpen] = useState(false)
     const menuRef = useRef()
     const btnRef = useRef()
 
     useEffect(() => {
         if (!open) return
+
         document.addEventListener('mousedown', handleClick)
+
         function handleClick(e) {
             if (menuRef.current && !menuRef.current.contains(e.target)) setOpen(false)
         }
@@ -49,13 +53,19 @@ export default function VideoMenu({ videoId, setToast, inWatchLater = false, set
         }
     }
 
+    // Метод filter(Boolean) используется для очистки массива от null или undefined
     const actions = [
-        inWatchLater
-            ? { key: 'removeWatchLater', label: 'Удалить из списка' }
-            : { key: 'watchLater', label: 'Смотреть позже'},
+        !forShort
+            ? inWatchLater
+                ? { key: 'removeWatchLater', label: 'Удалить из списка' }
+                : { key: 'watchLater', label: 'Смотреть позже'}
+            : null,
+
         { key: 'notInterested', label: 'Не интересует'},
         { key: 'complain', label: 'Пожаловаться'},
-    ]
+
+        !forShort ? { key: "addToQueue", label: "Добавить в очередь" } : null,
+    ].filter(Boolean)
 
     return (
         <div className="relative" ref={menuRef}>
@@ -68,7 +78,7 @@ export default function VideoMenu({ videoId, setToast, inWatchLater = false, set
                 <DotsIcon className="w-6 h-6 text-gray-700 cursor-pointer" />
             </button>
             {open && (
-                <div className="absolute right-0 z-20 w-48 bg-white rounded-lg shadow-lg border border-gray-100 animate-fadeIn">
+                <div className="absolute right-0 z-20 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-100 animate-fadeIn">
                     {actions.map(item => (
                         <button
                             key={item.key}

@@ -27,7 +27,7 @@ export default function VideoEdit() {
         async function fetchVideo() {
             try {
                 setLoading(true)
-                const response = await api.get(`/api/v1/videos/${id}`)
+                const response = await api.get(`/api/v1/user/videos/${id}`)
                 setTitle(response.data.title)
                 setStatus(response.data.status)
                 setDescription(response.data.description)

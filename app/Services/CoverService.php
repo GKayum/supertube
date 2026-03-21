@@ -27,4 +27,22 @@ class CoverService implements CoverServiceContract
         
         return $original->handle(null, []);
     }
+
+    public function processShort($uploadedFile): array
+    {
+        // Шаблоны путей (storage/app/public/covers/{size}/...)
+        $originalTemplate = 'covers/original/{uniqid}.webp';
+        $template480 = 'covers/480x854/{uniqid}.webp';
+
+        // Обработчики
+        $original = new Handlers\StoreOriginalHandler($originalTemplate);
+        $resize480 = new Handlers\ResizeHandler(480, 854, '480x854');
+        $save480 = new Handlers\StoreHandler('480x854', $template480);
+
+        $original->setFile($uploadedFile)
+            ->setNext($resize480->setFile($uploadedFile))
+            ->setNext($save480);
+
+        return $original->handle(null, []);
+    }
 }

@@ -47,7 +47,15 @@ class VideoController extends Controller
     }
 
     public function list() {
-        $videos = Video::with('covers')->where('status', VideoStatus::Published)->latest()->get();
+        $videos = Video::with('covers')->where('is_short', false)->where('status', VideoStatus::Published)->latest()->get();
+
+        return response()->json(
+            VideoResource::collection($videos)
+        );
+    }
+
+    public function listShorts() {
+        $videos = Video::with('covers')->where('is_short', true)->where('status', VideoStatus::Published)->latest()->get();
 
         return response()->json(
             VideoResource::collection($videos)

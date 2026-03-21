@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\ChannelResource;
 use App\Http\Resources\PlaylistResource;
 use App\Http\Resources\UserResource;
+use App\Http\Resources\VideoResource;
 use App\Models\CoverChannel;
 use App\Models\User;
 use App\Services\Contracts\CoverChannelServiceContract;
@@ -93,5 +94,11 @@ class ChannelController extends Controller
         $channelOwn = User::query()->findOrFail($userId);
 
         return PlaylistResource::collection($channelOwn->playlists);
+    }
+
+    public function shorts(int $userId, Request $request) {
+        $channelOwn = User::query()->findOrFail($userId);
+
+        return VideoResource::collection($channelOwn->publishedShorts);
     }
 }

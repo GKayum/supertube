@@ -44,6 +44,7 @@ class SearchService implements SearchServiceContract
                 }
             })
             ->where('status', VideoStatus::Published->value)
+            ->where('is_short', false)
             ->when($request->has('duration'), function ($q) use ($request) {
                 if ($request->get('duration') === 'short') {
                     $q->where('duration', '<', 10);

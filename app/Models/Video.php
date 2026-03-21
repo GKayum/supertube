@@ -18,10 +18,12 @@ class Video extends Model
         'path',
         'scheduled_at',
         'duration',
+        'is_short',
     ];
 
     protected $casts = [
         'scheduled_at' => 'datetime',
+        'is_short' => 'boolean',
     ];
 
     public function scopeDueToPublish(Builder $q): Builder

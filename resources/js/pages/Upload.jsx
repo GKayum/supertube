@@ -6,7 +6,7 @@ import FormVideo from '../components/form/FormVideo'
 
 export default function Upload() {
     const [file, setFile] = useState(null)
-    const [status, setStatus] = useState('')
+    const [status, setStatus] = useState('published')
     const [title, setTitle] = useState('')
     const [description, setDescription] = useState('')
     const [uploading, setUploading] = useState(false)

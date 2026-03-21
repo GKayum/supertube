@@ -30,9 +30,14 @@ class VideoService implements VideoServiceContract
         $filename = Str::uuid() . '.' . $validated['video']->getClientOriginalExtension();
         $videoPath = $validated['video']->storeAs('videos', $filename, 'public');
         $paths = [$videoPath];
-        $covers = $this->coverService->process($validated['preview']);
-        $duration = $this->videoAnalyzer->getDurationSeconds($videoPath);
 
+        $duration = $this->videoAnalyzer->getDurationSeconds($videoPath);
+        $isShort = $this->videoAnalyzer->isShort($videoPath);
+
+        $covers = $isShort
+            ? $this->coverService->processShort($validated['preview'])
+            : $this->coverService->process($validated['preview']);
+        
         // Отключение автосохранения изменений, 
         // позволяет выполнить группу SQL-запросов как одно целое
         DB::beginTransaction();
@@ -47,9 +52,11 @@ class VideoService implements VideoServiceContract
                 'scheduled_at' => $validated['scheduledAt'] ?? null,
                 'hidden_hash' => Str::random(16),
                 'duration' => $duration,
+                'is_short' => $isShort,
             ]);
 
             foreach ($covers as $cover) {
+                $paths[] = $cover->path;
                 Cover::create([
                     'video_id' => $video->id,
                     'width' => $cover->width,
@@ -71,7 +78,9 @@ class VideoService implements VideoServiceContract
 
         return [
             'message' => 'Видео успешно загружено',
+            'path' => Storage::url($videoPath),
             'id' => $video->id,
+            'title' => $validated['title'],
         ];
     }
 
@@ -129,6 +138,7 @@ class VideoService implements VideoServiceContract
 
         return [
             'message' => 'Видео успешно отредактировано!',
+            'title' => $validated['title'],
         ];
     }
 
@@ -140,13 +150,17 @@ class VideoService implements VideoServiceContract
 
         if ($isHash) {
             $video = Video::where('hidden_hash', $idOrHiddenHash)
+                ->where('is_short', false)
                 ->where('status', VideoStatus::Hidden->value)
                 ->firstOrFail();
             
             return new VideoResource($video);
         }
 
-        $video = Video::findOrFail($idOrHiddenHash);
+        /**
+         * @var \App\Models\Video|null $video
+         */
+        $video = Video::where('is_short', false)->findOrFail($idOrHiddenHash);
 
         if ($video->status === VideoStatus::Published->value) {
             return new VideoResource($video);

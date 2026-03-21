@@ -30,6 +30,9 @@ class Playlist extends Model
     }
 
     public function publishedVideos() {
-        return $this->videos()->where('videos.status', VideoStatus::Published->value);
+        return $this->videos()->where('videos.status', VideoStatus::Published->value)->where('videos.is_short', false);
+    }
+    public function publishedShorts() {
+        return $this->videos()->where('videos.status', VideoStatus::Published->value)->where('videos.is_short', true);
     }
 }

@@ -5,6 +5,7 @@ import { api, handlerApiError } from '../../services/api'
 import NotFound from '../404'
 import ChannelVideoCard from "../../components/video/cards/ChannelVideoCard";
 import PlaylistCard from "../../components/playlist/PlaylistCard";
+import ShortCard from "../../components/short/ShortCard";
 
 const TABS = [
     { key: 'videos',    label: 'Видео' },
@@ -27,11 +28,21 @@ export default function Channel() {
     const [playlistsFetched, setPlaylistsFetched] = useState(false)
     const [playlistsError, setPlaylistsError] = useState('')
 
+    const [shorts, setShorts] = useState([])
+    const [shortsLoading, setShortsLoading] = useState(false)
+    const [shortsFetched, setShortsFetched] = useState(false)
+    const [shortsError, setShortsError] = useState('')
+
     useEffect(() => {
         setPlaylists([])
         setPlaylistsLoading(false)
         setPlaylistsFetched(false)
         setPlaylistsError('')
+
+        setShorts([])
+        setShortsLoading(false)
+        setShortsFetched(false)
+        setShortsError('')
     }, [id])
 
     useEffect(() => {
@@ -73,6 +84,26 @@ export default function Channel() {
         }
         run()
     }, [activeTab, id, playlistsFetched, playlistsLoading])
+
+    useEffect(() => {
+        if (activeTab !== 'shorts' || shortsFetched || shortsLoading) return
+
+        const run = async () => {
+            setShortsLoading(true)
+            setShortsError('')
+            try {
+                const response = await api.get(`/api/v1/channel/${id}/shorts`)
+                
+                setShorts(response.data.data || [])
+                setShortsFetched(true)
+            } catch (error) {
+                setShortsError('Не удалось загрузить шортсы')
+            } finally {
+                setShortsLoading(false)
+            }
+        }
+        run()
+    }, [activeTab, id, shortsFetched, shortsLoading])
 
     if (loading) {
         return <p className="text-center text-gray-500 mt-10">Загрузка данных...</p>
@@ -182,7 +213,32 @@ export default function Channel() {
                     </>
                 )}
                 {activeTab === 'shorts' && (
-                    <div>Шортсы...</div>
+                    <>
+                        {shortsLoading && <div className="text-gray-500">Загрузка шортсов...</div>}
+
+                        {!shortsLoading && shortsError && (
+                            <div className="text-red-500">{shortsError}</div>
+                        )}
+
+                        {!shortsLoading && !shortsError && (
+                            shorts.length === 0
+                                ? <div className="text-gray-500">На канале нет шортсов</div>
+                                : (
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4 mt-4">
+                                        {shorts.map(short => (
+                                            <ShortCard
+                                                key={`short-${short.id}`}
+                                                id={short.id}
+                                                title={short.title}
+                                                coverUrl={short.preview480}
+                                                videoUrl={short.path}
+                                                views={short.views ?? 0}
+                                            />
+                                        ))}
+                                    </div>
+                                )
+                        )}
+                    </>
                 )}
                 {activeTab === 'posts' && (
                     <div>Посты...</div>

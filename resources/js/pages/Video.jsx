@@ -178,6 +178,7 @@ export default function Video() {
                                         muted={false}
                                         autoPlay={false}
                                         onPlay={handlePlay}
+                                        preload="metadata"
                                     >
                                         <source src={video.path}/>
                                         Ваш браузер не поддерживает видео.
