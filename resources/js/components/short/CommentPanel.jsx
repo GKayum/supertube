@@ -44,8 +44,11 @@ export default function CommentPanel({ videoId, isOpen, onClose }) {
 
         try {
             setPosting(true)
-            const { data } = await api.post(`/api/v1/videos/${videoId}/comments`, { body: text.trim() })
-            setComments((prev) => [data?.data || data, ...prev])
+
+            await api.get('/sanctum/csrf-cookie')
+            const { data } = await api.post(`/api/v1/videos/${videoId}/comments`, { text: text.trim() })
+
+            setComments(data?.comments)
             setText('')
         } catch (error) {
             console.error('Не удалось отправить комментарий', error)
@@ -67,14 +70,14 @@ export default function CommentPanel({ videoId, isOpen, onClose }) {
                     transition-transform duration-300 ease-out flex flex-col
                     ${isOpen ? 'translate-x-0' : 'translate-x-full'
                 }`}
-                role="dialog" aria-label="Комментарий"
+                role="dialog" aria-label="Комментарии"
             >
                 <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
                     <div className="font-semibold">Комментарии</div>
                     <button onClick={onClose} className="text-white/70 hover:text-white" aria-label="Закрыть">x</button>
                 </div>
 
-                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
+                <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4 mt-4 [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-gray-500">
                     {loading ? (
                         <div className="text-white/70 mt-4">Загрузка...</div>
                     ) : !videoId ? (
@@ -85,13 +88,13 @@ export default function CommentPanel({ videoId, isOpen, onClose }) {
                         comments.map((comment) => (
                             <div key={comment.id} className="flex items-start gap-3">
                                 {comment.user?.avatar ? (
-                                    <img src={comment.user.avatar} alt={comment.user?.name || 'User'} className="h-8 w-8 rounded-full object-cover bg-white/20 text-sm"/>
+                                    <img src={comment.user?.avatar} alt={comment.user?.name || 'User'} className="h-8 w-8 rounded-full object-cover bg-white/20 text-sm"/>
                                 ) : (
-                                    <div className="h-8 w-8 rounded-full object-cover bg-white/20 flex items-center justify-center text-sm">😊</div>
+                                    <div className="h-8 w-8 rounded-full bg-white/20 flex items-center justify-center text-sm">😊</div>
                                 )}
                                 <div className="min-w-0">
                                     <div className="text-sm font-medium truncate">{comment.user?.name || 'Пользователь'}</div>
-                                    <div className="text-sm text-white/90 whitespace-pre-wrap break-words">{comment.body}</div>
+                                    <div className="text-sm text-white/90 whitespace-pre-wrap break-words">{comment.text}</div>
                                     {comment.created_at && <div className="text-xs text-white/50 mt-1">{new Date(comment.created_at).toLocaleString()}</div>}
                                 </div>
                             </div>

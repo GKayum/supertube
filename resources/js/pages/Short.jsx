@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { api } from "../services/api"
 import CommentPanel from "../components/short/CommentPanel"
-
+import { getFingerprint } from "../services/fingerprint"
 
 const SWIPE_THRESHOLD = 60
 const WHEEL_THROTTLE_MS = 600
@@ -17,6 +17,37 @@ function ShortCard({
     onOpenComments,
 }) {
     const isActive = index === activeIndex
+    const [likesCount, setLikesCount] = useState(0)
+    const [dislikesCount, setDislikesCount] = useState(0)
+
+    const rateHandler = async (type) => {
+        try {
+            const fingerprint = await getFingerprint()
+
+            await api.get('/sanctum/csrf-cookie')
+            const response = await api.post('/api/v1/videos/' + item.id + '/' + type, { fingerprint })
+
+            setLikesCount(response.data.likes)
+            setDislikesCount(response.data.dislikes)
+        } catch (error) {
+            setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
+        }
+    }
+
+    useEffect(() => {
+        const fetchLikes = async () => {
+            try {
+                const response = await api.get('/api/v1/videos/' + item.id + '/likes')
+
+                setLikesCount(response.data.likes)
+                setDislikesCount(response.data.dislikes)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+
+        fetchLikes()
+    }, [item.id])
 
     return (
         <section className="h-dvh w-dvw relative flex items-center justify-center">
@@ -69,12 +100,39 @@ function ShortCard({
                     </div>
 
                     <div className="flex flex-col gap-4 items-center">
-                        <IconButton label="Like" onClick={() => {}} icon="❤️" />
-                        <IconButton label="Dislike" onClick={() => {}} icon="❤️" />
-                        <IconButton label="Comment" onClick={() => onOpenComments?.(item.id)} icon="💬" />
-                        <IconButton label="Share" onClick={() => {}} icon="🔄️" />
-                        <IconButton label="Prev" onClick={goPrev} icon="↑" />
-                        <IconButton label="Next" onClick={goNext} icon="↓" />
+                        <IconButton label="Like" onClick={() => {rateHandler('like')}} icon={
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>
+                                <path d="M7 10v12"/>
+                            </svg>} number={likesCount} />
+                        <IconButton label="Dislike" onClick={() => {rateHandler('dislike')}} icon={
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M9 18.12 10 14H4.17a2 2 0 0 1-1.92-2.56l2.33-8A2 2 0 0 1 6.5 2H20a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2h-2.76a2 2 0 0 0-1.79 1.11L12 22a3.13 3.13 0 0 1-3-3.88Z"/>
+                                <path d="M17 14V2"/>
+                            </svg>} number={dislikesCount} />
+                        <IconButton label="Comment" onClick={() => onOpenComments?.(item.id)} icon={
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+                                <path d="M12 11h.01"/>
+                                <path d="M16 11h.01"/>
+                                <path d="M8 11h.01"/>
+                            </svg>} />
+                        <IconButton label="Share" onClick={() => {}} icon={
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M21 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h6" />
+                                <path d="m21 3-9 9" />
+                                <path d="M15 3h6v6" />
+                            </svg>} />
+                        <IconButton label="Prev" onClick={goPrev} icon={
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M8 6L12 2L16 6"/>
+                                <path d="M12 2V22"/>
+                            </svg>} />
+                        <IconButton label="Next" onClick={goNext} icon={
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M8 18L12 22L16 18"/>
+                                <path d="M12 2V22"/>
+                            </svg>} />
                     </div>
                 </div>
             </div>
@@ -82,14 +140,19 @@ function ShortCard({
     )
 }
 
-function IconButton({label, icon, onClick}) {
+function IconButton({ label, icon, onClick, number = '' }) {
     return (
         <button
             onClick={onClick}
-            className="h-12 w-12 rounded-full bg-black/30 hover:bg-black/40 text-white text-xl flex items-center justify-center cursor-pointer"
+            className="flex flex-col items-center justify-center text-white cursor-pointer"
             aria-label={label}
         >
-            <span>{icon}</span>
+            <div className="h-8 w-8 rounded-full bg-black/30 hover:bg-black/40 flex items-center justify-center backdrop-blur-2xl">
+                {icon}
+            </div>
+            {number !== '' && (
+                <span className="text-sm text-gray-200">{number}</span>
+            )}
         </button>
     )
 }
@@ -126,7 +189,7 @@ export default function Short() {
 
                 const { data } = await api.get(url, { params: { limit: 50 } })
 
-                setItems(data.data || data || {})
+                setItems(data.data || data || [])
             } catch (error) {
                 console.error("Не удалось загрузить шортсы", error);
             }
@@ -149,6 +212,10 @@ export default function Short() {
         if (!item) return
         navigate(`/shorts/${item.id}?list=${listSource}`, { replace: true })
     }, [activeIndex, items, navigate, listSource])
+
+    useEffect(() => {
+        if (isCommentsOpen) setIsCommentsOpen(false)
+    }, [activeIndex])
 
     useEffect(() => {
         const now = Date.now()
@@ -198,34 +265,34 @@ export default function Short() {
         return () => window.removeEventListener("keydown", onKey)
     }, [goNext, goPrev])
 
-    // Обработка прокрутки колесика мыши
-    useEffect(() => {
-        const el = containerRef.current
+    // // Обработка прокрутки колесика мыши
+    // useEffect(() => {
+    //     const el = containerRef.current
 
-        if (!el) return
+    //     if (!el) return
 
-        const onWheel = (e) => {
-            if (isCommentsOpen) return
+    //     const onWheel = (e) => {
+    //         if (isCommentsOpen) return
 
-            const now = Date.now()
+    //         const now = Date.now()
 
-            // wheelLockRef - хранит время последнего срабатывания обработчика
-            // Ограничение частоты вызовов, между срабатываниями должно пройти > 600мс
-            if (now - wheelLockRef.current < WHEEL_THROTTLE_MS) return
+    //         // wheelLockRef - хранит время последнего срабатывания обработчика
+    //         // Ограничение частоты вызовов, между срабатываниями должно пройти > 600мс
+    //         if (now - wheelLockRef.current < WHEEL_THROTTLE_MS) return
 
-            // Величина прокрутки по вертикали (deltaY)
-            if (Math.abs(e.deltaY) < 8) return
+    //         // Величина прокрутки по вертикали (deltaY)
+    //         if (Math.abs(e.deltaY) < 8) return
 
-            wheelLockRef.current = now
+    //         wheelLockRef.current = now
 
-            if (e.deltaY > 0) goNext(); else goPrev()
-        }
+    //         if (e.deltaY > 0) goNext(); else goPrev()
+    //     }
 
-        // Отключение preventDefault() → { passive: true }
-        el.addEventListener('wheel', onWheel, { passive: true })
+    //     // Отключение preventDefault() → { passive: true }
+    //     el.addEventListener('wheel', onWheel, { passive: true })
 
-        return () => el.removeEventListener('wheel', onWheel)
-    }, [goNext, goPrev])
+    //     return () => el.removeEventListener('wheel', onWheel)
+    // }, [goNext, goPrev])
 
     // Тач-свайп
     const touchStartY = useRef(null)
