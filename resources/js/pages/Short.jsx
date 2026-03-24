@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react"
 import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { api } from "../services/api"
+import CommentPanel from "../components/short/CommentPanel"
 
 
 const SWIPE_THRESHOLD = 60
@@ -13,47 +14,68 @@ function ShortCard({
     setVideoRef,
     goNext,
     goPrev,
+    onOpenComments,
 }) {
     const isActive = index === activeIndex
 
     return (
-        <section className="h-screen w-screen relative flex items-center justify-center">
+        <section className="h-dvh w-dvw relative flex items-center justify-center">
             <div className="relative h-full w-full flex items-center justify-center">
-                <video 
-                    ref={setVideoRef}
-                    playsInline
-                    muted
-                    loop
-                    poster={item.poster}
-                    src={item.path}
-                    className="max-h-[100vh] max-w-[calc(100vh*(9/16))] aspect-9/16 rounded-2xl shadow-xl object-cover"
-                />
+                <div className="flex items-center gap-3">
+                    <div className="relative inline-block">
+                        <video 
+                            ref={setVideoRef}
+                            playsInline
+                            loop
+                            poster={item.preview480}
+                            src={item.path}
+                            className="h-dvh w-auto max-h-none aspect-9/16 rounded-2xl shadow-xl object-cover"
+                        />
 
-                <div className="absolute right-2 md:right-6 bottom-24 md:bottom-28 flex flex-col gap-4 items-center">
-                    <IconButton label="Like" onClick={() => {}} icon="❤️" />
-                    <IconButton label="Comment" onClick={() => {}} icon="💬" />
-                    <IconButton label="Share" onClick={() => {}} icon="🔄️" />
-                    <IconButton label="Prev" onClick={goPrev} icon="↑" />
-                    <IconButton label="Next" onClick={goNext} icon="↓" />
-                </div>
+                        <div className="absolute left-2 right-2 md:left-4 md:right-4 bottom-2 text-white">
+                            <div className="flex items-center justify-between mb-2">
+                                <div className="flex items-center gap-3 cursor-pointer min-w-0">
+                                    {item.user?.avatar ? (
+                                        <img 
+                                            src={item.user.avatar}
+                                            alt="avatar"
+                                            className="h-10 w-10 rounded-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
+                                            🎬
+                                        </div>
+                                    )}
+                                    <div className="font-semibold truncate">
+                                        {item.user?.name || 'Автор'}
+                                    </div>
+                                </div>
 
-                <div className="absolute left-2 right-2 md:left-6 md:right-6 bottom-4 text-white">
-                    <div className="flex items-center gap-3 mb-2 cursor-pointer">
-                        {item.user?.avatar ? (
-                            <img src={item.user.avatar} alt="avatar" className="h-10 w-10 rounded-full object-cover" />
-                        ) : (
-                            <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">🎬</div>
-                        )}
-                        <div className="flex-1 min-w-0">
-                            <div className="font-semibold truncate">{item.user?.name || 'Автор'}</div>
-                            <div className="text-sm text-white/70 truncate">{item.title}</div>
+                                <button className="px-3.5 py-1.5 rounded-full bg-white text-black text-sm font-semibold cursor-pointer leading-snug">
+                                    Подписаться
+                                </button>
+                            </div>
+
+                            <div className="text-sm text-white/90 font-medium mb-1 line-clamp-1">
+                                {item.title}
+                            </div>
+
+                            {item.description && (
+                                <div className="text-sm text-white/70 line-clamp-1">
+                                    {item.description}
+                                </div>
+                            )}
                         </div>
-                        <button className="px-3 py-1 rounded-full bg-white text-black text-sm font-semibold cursor-pointer">Подписаться</button>
                     </div>
 
-                    {item.description && (
-                        <div className="text-sm text-white/80 line-clamp-2">{item.description}</div>
-                    )}
+                    <div className="flex flex-col gap-4 items-center">
+                        <IconButton label="Like" onClick={() => {}} icon="❤️" />
+                        <IconButton label="Dislike" onClick={() => {}} icon="❤️" />
+                        <IconButton label="Comment" onClick={() => onOpenComments?.(item.id)} icon="💬" />
+                        <IconButton label="Share" onClick={() => {}} icon="🔄️" />
+                        <IconButton label="Prev" onClick={goPrev} icon="↑" />
+                        <IconButton label="Next" onClick={goNext} icon="↓" />
+                    </div>
                 </div>
             </div>
         </section>
@@ -64,7 +86,7 @@ function IconButton({label, icon, onClick}) {
     return (
         <button
             onClick={onClick}
-            className="h-12 w-12 rounded-full bg-black/30 hover:bg-black/40 text-white text-xl flex items-center justify-center"
+            className="h-12 w-12 rounded-full bg-black/30 hover:bg-black/40 text-white text-xl flex items-center justify-center cursor-pointer"
             aria-label={label}
         >
             <span>{icon}</span>
@@ -85,6 +107,15 @@ export default function Short() {
     const videosRef = useRef([])
     const wheelLockRef = useRef(0)
 
+    const [isCommentsOpen, setIsCommentsOpen] = useState(false)
+    const [commentsVideoId, setCommentsVideoId] = useState(null)
+
+    const openComments = useCallback((videoId) => {
+        setCommentsVideoId(videoId)
+        setIsCommentsOpen(true)
+    }, [])
+    const closeComments = useCallback(() => setIsCommentsOpen(false), [])
+
     // Загрузка шортсов
     useEffect(() => {
         (async () => {
@@ -94,8 +125,6 @@ export default function Short() {
                     : `/api/v1/videos/shorts`
 
                 const { data } = await api.get(url, { params: { limit: 50 } })
-                console.log('shorts items:', data);
-                
 
                 setItems(data.data || data || {})
             } catch (error) {
@@ -108,7 +137,6 @@ export default function Short() {
         if (!items.length) return
 
         const byId = items.findIndex((item) => String(item.id) === String(id))
-        console.log('byId:', byId);
         
         setActiveIndex(byId >= 0 ? byId : 0)
     }, [items, id])
@@ -124,7 +152,6 @@ export default function Short() {
 
     useEffect(() => {
         const now = Date.now()
-        console.log(`now: ${now} | whellLockRef: ${wheelLockRef.current}`);
 
         if (now - wheelLockRef.current < 150) return
 
@@ -132,7 +159,6 @@ export default function Short() {
             if (!v) return
 
             if (i === activeIndex) {
-                v.muted = true
                 v.loop = true
 
                 const play = () => v.play().catch(() => {})
@@ -155,6 +181,8 @@ export default function Short() {
     // Функция для обработки нажатия кнопок стрелочек ↑/↓
     useEffect(() => {
         const onKey = (e) => {
+            if (isCommentsOpen) return
+
             if (e.key === "ArrowDown" || e.key === "j") {
                 e.preventDefault()
                 goNext()
@@ -166,6 +194,7 @@ export default function Short() {
             }
         }
         window.addEventListener("keydown", onKey)
+        
         return () => window.removeEventListener("keydown", onKey)
     }, [goNext, goPrev])
 
@@ -176,6 +205,8 @@ export default function Short() {
         if (!el) return
 
         const onWheel = (e) => {
+            if (isCommentsOpen) return
+
             const now = Date.now()
 
             // wheelLockRef - хранит время последнего срабатывания обработчика
@@ -201,15 +232,18 @@ export default function Short() {
     const touchMoveY = useRef(null)
 
     const onTouchStartY = (e) => {
+        if (isCommentsOpen) return
         touchStartY.current = e.touches[0].clientY
         touchMoveY.current = null
     }
 
     const onTouchMove = (e) => {
+        if (isCommentsOpen) return
         touchMoveY.current = e.touches[0].clientY
     }
 
     const onTouchEnd = () => {
+        if (isCommentsOpen) return
         if (touchStartY.current == null || touchMoveY.current == null) return
 
         const dy = touchMoveY.current - touchStartY.current
@@ -235,7 +269,7 @@ export default function Short() {
 
     if (!items.length) {
         return (
-            <div className="h-screen w-screen flex items-center justify-center text-muted-foreground">
+            <div className="h-full w-full flex items-center justify-center text-gray-500">
                 Загрузка шортсов...
             </div>
         )
@@ -262,6 +296,7 @@ export default function Short() {
                         setVideoRef={(el) => (videosRef.current[i] = el)}
                         goNext={goNext}
                         goPrev={goPrev}
+                        onOpenComments={() => openComments(item.id)}
                     />
                 ))}
             </div>
@@ -271,15 +306,21 @@ export default function Short() {
                     aria-label="Предыдущее"
                     onClick={goPrev}
                     disabled={!canPrev}
-                    className="pointer-events-none hidden md:block text-white/80 hover:text-white disabled:opacity-30 cursor-pointer"
+                    className="pointer-events-auto hidden md:block text-white/80 hover:text-white disabled:opacity-30 cursor-pointer"
                 >↑</button>
                 <button
                     aria-label="Следующее"
                     onClick={goNext}
                     disabled={!canNext}
-                    className="pointer-events-none hidden md:block text-white/80 hover:text-white disabled:opacity-30 cursor-pointer"
+                    className="pointer-events-auto hidden md:block text-white/80 hover:text-white disabled:opacity-30 cursor-pointer"
                 >↓</button>
             </div>
+
+            <CommentPanel
+                videoId={commentsVideoId ?? (items[activeIndex]?.id ?? null)}
+                isOpen={isCommentsOpen}
+                onClose={closeComments}
+            />
         </div>
     )
 }

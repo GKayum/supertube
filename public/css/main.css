@@ -1,4 +1,14 @@
+:root {
+}
+
 html {
     /* scrollbar-gutter: stable; */
     /* scrollbar-width: thin; */
+}
+body {
+    /* overflow: hidden; */
+}
+
+#root {
+  /* height: 100%; */
 }

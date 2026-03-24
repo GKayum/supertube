@@ -34,8 +34,8 @@ export default function Main() {
 
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-            <main className="flex justify-center bg-gray-50 min-h-screen py-8">
-                <div className="w-full max-w-6xl px-2">
+            <main className="flex justify-center bg-gray-50 min-h-[calc(100vh-65px)]">
+                <div className="w-full max-w-6xl px-2 py-8">
                     <Routes>
                         <Route path="/" element={<Home />} />
                         <Route path="/login" element={<Login />} />
