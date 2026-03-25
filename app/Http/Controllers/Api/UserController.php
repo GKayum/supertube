@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\Api;
 
+use App\Enums\VideoStatus;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\VideoResource;
+use App\Models\Video;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -60,5 +62,20 @@ class UserController extends Controller
             'message' => 'Настройки успешно сохранены!',
             'user' => $user,
         ]);
+    }
+
+    public function shorts(Request $request) {
+        $user = $request->user();
+        $perPage = (int) $request->integer('per_page', 50);
+
+        $query = Video::query()
+            ->where('user_id', $user->id)
+            ->shorts()
+            ->with(['user'])
+            ->orderByDesc('created_at');
+        
+        $paginator = $query->paginate($perPage);
+
+        return VideoResource::collection($paginator);
     }
 }

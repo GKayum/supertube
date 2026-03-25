@@ -123,6 +123,13 @@ export default function Header({ onSideBarClick }) {
                                             >
                                                 Плейлисты
                                             </Link>
+                                            <Link
+                                                to='/my-shorts'
+                                                className="block px-6 py-2 text-gray-800 hover:bg-gray-100"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                Шортсы
+                                            </Link>
 
                                             {/* Блок "Настройки" */}
                                             <div className="px-4 py-2 text-xs text-gray-500 font-semibold uppercase border-t border-gray-100">

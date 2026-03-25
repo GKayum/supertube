@@ -33,6 +33,10 @@ class Video extends Model
             ->where('scheduled_at', '<=', Carbon::now());
     }
 
+    public function scopeShorts(Builder $q) {
+        return $q->where('is_short', true);
+    }
+
     public function covers() {
         return $this->hasMany(Cover::class);
     }

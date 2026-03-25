@@ -59,9 +59,10 @@ Route::prefix('v1')->group(function () {
         Route::put('/playlist/{id}/update', [PlaylistController::class, 'update'])->where('id', '[1-9][0-9]*');
 
         Route::prefix('/user')->group(function () {
-            Route::get('/profile', [UserController::class, 'profile']);
             Route::get('/videos', [UserController::class, 'videos']);
+            Route::get('/shorts', [UserController::class, 'shorts']);
             Route::get('/videos/{id}', [UserController::class, 'show'])->where('id', '[1-9][0-9]*');
+            Route::get('/profile', [UserController::class, 'profile']);
             Route::post('/profile/update', [UserController::class, 'update']);
 
             Route::post('/channel/update', [ChannelController::class, 'update']);

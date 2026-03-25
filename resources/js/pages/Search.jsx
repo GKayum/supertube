@@ -4,12 +4,16 @@ import { api, handlerApiError } from "../services/api"
 import { useLocation } from "react-router-dom"
 import FiltersPanel from "../components/search/FiltersPanel"
 import PlaylistSearchCard from "../components/playlist/PlaylistSearchCard"
+import ShortCard from "../components/short/ShortCard"
+
+const FIRST_BLOCK_COUNT = 3
 
 export default function SearchResultList() {
     const location = useLocation()
     const [results, setResults] = useState([])
     const [loading, setLoading] = useState(false)
     const [query, setQuery] = useState('')
+    const [shorts, setShorts] = useState([])
 
     const [filters, setFilters] = useState({
         date: '',
@@ -49,7 +53,23 @@ export default function SearchResultList() {
             .then(res => setResults(res.data))
             .catch(err => handlerApiError(err, {}))
             .finally(() => setLoading(false))
+
+        fetchShorts()
     }, [query, searchUrl])
+
+    const fetchShorts = async () => {
+        try {
+            const response = await api.get('/api/v1/videos/shorts')
+            setShorts(response.data.slice(0, 4))
+        } catch (error) {
+            console.error('Ошибка при загрузке шортсов:', error)
+        } finally {
+            setLoading(false)
+        }
+    }
+
+    const firstBlock = results.slice(0, FIRST_BLOCK_COUNT)
+    const restblock = results.slice(FIRST_BLOCK_COUNT)
 
     return (
         <div className="max-w-6xl mx-auto w-full px-4">
@@ -74,11 +94,38 @@ export default function SearchResultList() {
                     {results.length === 0 ? (
                         <div className="text-gray-500 mt-6">Ничего не найдено.</div>
                     ) : (
-                        results.map(item => (
-                            item.type === 'playlist'
-                                ? <PlaylistSearchCard key={`pl-${item.id}`} playlist={item} />
-                                : <SearchCard key={`v-${item.id}`} video={item} />
-                        ))
+                        <>
+                            {Array.isArray(firstBlock) && firstBlock.map(item => (
+                                item.type === 'playlist'
+                                    ? <PlaylistSearchCard key={`pl-${item.id}`} playlist={item} />
+                                    : <SearchCard key={`v-${item.id}`} video={item} />
+                            ))}
+
+                            {shorts.length > 0 && (
+                                // (grid-column) - позволяет элементу занимать несколько колонок
+                                // (grid-column: 1 / -1) - растягивает элемент на всю ширину контейнера (от 1 до последней линии)
+                                <div className="col-span-full">
+                                    <div className="flex gap-4 overflow-x-auto pb-2">
+                                        {shorts.map(short => (
+                                            <ShortCard
+                                                key={`short-${short.id}`}
+                                                id={short.id}
+                                                title={short.title}
+                                                coverUrl={short.preview480}
+                                                videoUrl={short.path}
+                                                views={short.views ?? 0}
+                                            />
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {Array.isArray(restblock) && restblock.map(item => (
+                                item.type === 'playlist'
+                                    ? <PlaylistSearchCard key={`pl-${item.id}`} playlist={item} />
+                                    : <SearchCard key={`v-${item.id}`} video={item} />
+                            ))}
+                        </>
                     )}
                 </div>
             )}
