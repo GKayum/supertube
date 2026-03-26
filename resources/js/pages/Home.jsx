@@ -63,7 +63,8 @@ export default function Home() {
                     <div className="col-span-full">
                         <div className="flex gap-4 overflow-x-auto pb-2">
                             {shorts.map(short => (
-                                <ShortCard 
+                                <ShortCard
+                                    key={`short-${short.id}`}
                                     id={short.id}
                                     title={short.title}
                                     coverUrl={short.preview480}

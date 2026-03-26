@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom"
 import { api } from "../services/api"
 import CommentPanel from "../components/short/CommentPanel"
 import { getFingerprint } from "../services/fingerprint"
+import Toast from "../components/form/Toast"
 
 const SWIPE_THRESHOLD = 60
 const WHEEL_THROTTLE_MS = 600
@@ -15,10 +16,23 @@ function ShortCard({
     goNext,
     goPrev,
     onOpenComments,
+    setToast
 }) {
     const isActive = index === activeIndex
     const [likesCount, setLikesCount] = useState(0)
     const [dislikesCount, setDislikesCount] = useState(0)
+    const [subLoading, setSubLoading] = useState(false)
+
+    const deriveSubInfo = (item) => {
+        const isSub = Boolean(item.channel?.isSubscribed ?? false)
+        const subs = Number(item.channel?.subscribers ?? 0)
+        const channelId = item.channel?.id ?? item.user?.id
+        return { isSub, subs, channelId }
+    }
+    const initial = deriveSubInfo(item)
+    const [isSubscribed, setIsSubscribed] = useState(initial.isSub)
+    const [subscribers, setSubscribers] = useState(initial.subs)
+    const [channelId, setChannelId] = useState(initial.channelId)
 
     const rateHandler = async (type) => {
         try {
@@ -34,6 +48,32 @@ function ShortCard({
         }
     }
 
+    // Синхронизация состояния подписки при смене карточки/канала
+    useEffect(() => {
+        const info = deriveSubInfo(item)
+        setIsSubscribed(info.isSub)
+        setSubscribers(info.subs)
+        setChannelId(info.channelId)
+    }, [item.id, item.channel?.id, item.user?.id])
+
+    // 
+    const processSubs = async (type, nextIsSubscribed) => {
+        setSubLoading(true)
+        try {
+            const channelId = item.channel?.id ?? item.user?.id // получение id канала, иначе id автора
+            const response = await api.post(`/api/v1/channel/${channelId}/${type}`)
+            setIsSubscribed(nextIsSubscribed)
+            setSubscribers(
+                Number(response.data.subscribers ?? response.data.subscribers_count ?? subscribers)
+            )
+        } catch (error) {
+            setToast({ visible: true, message: error.response?.data?.message || error, type: 'error' })
+        } finally {
+            setSubLoading(false)
+        }
+    }
+
+    // Получение likes/dislikes при изменении ID video
     useEffect(() => {
         const fetchLikes = async () => {
             try {
@@ -57,6 +97,7 @@ function ShortCard({
                         <video 
                             ref={setVideoRef}
                             playsInline
+                            autoPlay={isActive}
                             loop
                             poster={item.preview480}
                             src={item.path}
@@ -82,8 +123,15 @@ function ShortCard({
                                     </div>
                                 </div>
 
-                                <button className="px-3.5 py-1.5 rounded-full bg-white text-black text-sm font-semibold cursor-pointer leading-snug">
-                                    Подписаться
+                                <button 
+                                    className="px-3.5 py-1.5 rounded-full bg-white text-black text-sm font-semibold cursor-pointer leading-snug"
+                                    disabled={subLoading}
+                                    onClick={() =>
+                                        isSubscribed ? processSubs('unsubscribe', false) : processSubs('subscribe', true)
+                                    }
+                                >
+                                    {isSubscribed ? 'Отписаться' : 'Подписаться'}
+                                    {Number.isFinite(subscribers) && <span className="ml-2 text-black/70">({subscribers})</span>}
                                 </button>
                             </div>
 
@@ -134,6 +182,7 @@ export default function Short() {
     const { id } = useParams()
     const navigate = useNavigate()
     const [searchParams] = useSearchParams()
+    const [toast, setToast] = useState({ visible: false, message: '', type: 'info' })
 
     const listSource = searchParams.get('list') || 'home'    
 
@@ -146,28 +195,87 @@ export default function Short() {
     const [isCommentsOpen, setIsCommentsOpen] = useState(false)
     const [commentsVideoId, setCommentsVideoId] = useState(null)
 
+    const [loadingMore, setLoadingMore] = useState(false)
+    const [hasMore, setHasMore] = useState(true)
+    const [seen, setSeen] = useState(new Set()) // Набор уже загруженных id
+    const allowMoreRef = useRef(false) // включение догрузки после первого листания
+
     const openComments = useCallback((videoId) => {
         setCommentsVideoId(videoId)
         setIsCommentsOpen(true)
     }, [])
     const closeComments = useCallback(() => setIsCommentsOpen(false), [])
 
-    // Загрузка шортсов
+    // Сброс ленты при смене источника (listSource) (канал/домой) - спровоцирует новую первичную загрузку
     useEffect(() => {
-        (async () => {
-            try {
-                const url = listSource.startsWith('channel:')
-                    ? `/api/v1/channel/${listSource.split(':')[1]}/shorts`
-                    : `/api/v1/videos/shorts`
-
-                const { data } = await api.get(url, { params: { limit: 50 } })
-
-                setItems(data.data || data || [])
-            } catch (error) {
-                console.error("Не удалось загрузить шортсы", error);
-            }
-        })()
+        setItems([])
+        setActiveIndex(0)
+        setHasMore(true)
+        setSeen(new Set())
     }, [listSource])
+
+    // 1) Первичная загрузка: выбранный шортс первым + 5 случайных
+    // Выполнение функции ТОЛЬКО когда список (items) пустой, иначе каждый navigate меняющим id перезапускает фетч
+    useEffect(() => {
+        if (items.length) return // защита от перезагрузки на каждый navigate
+        const firstId = Number(id)
+        
+        if (!Number.isFinite(firstId)) return // проверяет, является ли конечным числом (любое число, кроме бесконечности и NaN)
+
+        allowMoreRef.current = false // до первого взаимодействия - не догружаем
+        const channelId = listSource.startsWith('channel:') ? listSource.split(':')[1] : null
+
+        api.get('/api/v1/shorts/viewer', {
+            params: { firstId, channelId, limit: 5 },
+        }).then(({ data }) => {
+            const list = data?.data ?? data ?? []
+            setItems(list)
+            setActiveIndex(0)
+            setSeen(new Set(list.map(video => Number(video.id))))
+            setHasMore(true)
+        }).catch((error) => console.error('Не удалось загрузить стартовые шортсы:', error))
+    }, [id, listSource, items.length])
+
+    // 2) Дозагрузка: когда пользователь дошел до последнего элемента
+    useEffect(() => {
+        if (!items.length) return
+        if (loadingMore) return
+        if (!hasMore) return // проверка, есть ли еще видео для подгрузки
+        if (!allowMoreRef.current) return // проверка, если не было листания
+
+        const onLast = activeIndex >= items.length - 1
+        if (!onLast) return
+
+        setLoadingMore(true)
+
+        const params = new URLSearchParams()
+        Array.from(seen).forEach((val) => params.append('exclude[]', Number(val)))
+        const channelId = listSource.startsWith('channel:') ? listSource.split(':')[1] : null
+        if (channelId != null) params.append('channelId', channelId)
+        params.append('limit', '5')
+
+        api.get('/api/v1/shorts/viewer/more', { params }).then(({ data }) => {
+            const incoming = data?.data ?? data ?? []
+            // Если пришел пустой массив incoming → шортсы кончились, больше не запрашивает
+            if (!incoming.length) {
+                setHasMore(false)
+                return
+            }
+
+            setItems((prev) => {
+                const have = new Set(prev.map(i => Number(i.id)))
+                const fresh = incoming.filter(i => !have.has(Number(i.id)))
+                if (!fresh.length) return prev
+                setSeen((prevSeen) => {
+                    const next = new Set(prevSeen)
+                    fresh.forEach(i => next.add(Number(i.id)))
+                    return next
+                })
+
+                return [...prev, ...fresh]
+            })
+        }).finally(() => setLoadingMore(false))
+    }, [activeIndex, items.length, loadingMore, listSource, seen])
 
     useEffect(() => {
         if (!items.length) return
@@ -211,12 +319,34 @@ export default function Short() {
         })
     }, [activeIndex])
 
+    useEffect(() => {
+        if (!items.length) return
+        if (activeIndex !== 0) return
+        const v = videosRef.current[0]
+        if (!v) return
+        try {
+            // Добавление атрибута muted - используется для отключения звука по умолчанию при воспроизведении видеофайла
+            v.muted = true
+            const play = () => v.play().catch(() => {})
+            if (v.readyState >= 2) play();
+            else v.onloadeddata = play
+        } catch (error) {
+            
+        }
+    }, [items.length, activeIndex])
+
     // Навигация
     const canPrev = activeIndex > 0
     const canNext = activeIndex < items.length - 1
 
-    const goNext = useCallback(() => setActiveIndex((i) => Math.min(i + 1, items.length - 1)), [items.length])
-    const goPrev = useCallback(() => setActiveIndex((i) => Math.max(i - 1, 0)), [])
+    const goNext = useCallback(() => {
+        allowMoreRef.current = true
+        setActiveIndex((i) => Math.min(i + 1, items.length - 1))
+    }, [items.length])
+    const goPrev = useCallback(() => {
+        allowMoreRef.current = true
+        setActiveIndex((i) => Math.max(i - 1, 0))
+    }, [])
 
     // Функция для обработки нажатия кнопок стрелочек ↑/↓
     useEffect(() => {
@@ -337,6 +467,7 @@ export default function Short() {
                         goNext={goNext}
                         goPrev={goPrev}
                         onOpenComments={() => openComments(item.id)}
+                        setToast={setToast}
                     />
                 ))}
             </div>

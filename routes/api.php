@@ -19,6 +19,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/videos/shorts', [VideoController::class, 'listShorts']);
     Route::get('/videos/search', [SearchController::class, 'filter']);
 
+    Route::get('/shorts/viewer', [VideoController::class, 'viewerFirst']);
+    Route::get('/shorts/viewer/more', [VideoController::class, 'viewerMore']);
+
     Route::post('/login', [AuthController::class, 'login']);
     Route::post('/register', [AuthController::class, 'register']);
     

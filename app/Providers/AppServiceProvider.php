@@ -7,6 +7,7 @@ use Illuminate\Support\ServiceProvider;
 class AppServiceProvider extends ServiceProvider
 {
     public $bindings = [
+        \App\Services\Contracts\ShortServiceContract::class => \App\Services\ShortService::class,
         \App\Services\Contracts\SearchServiceContract::class => \App\Services\SearchService::class,
         \App\Services\Contracts\VideoServiceContract::class => \App\Services\VideoService::class,
         \App\Services\Contracts\CoverServiceContract::class => \App\Services\CoverService::class,

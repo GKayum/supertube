@@ -8,14 +8,17 @@ use App\Http\Requests\VideoEditRequest;
 use App\Http\Requests\VideoUploadRequest;
 use App\Http\Resources\VideoResource;
 use App\Models\Video;
+use App\Services\Contracts\ShortServiceContract;
 use App\Services\Contracts\VideoServiceContract;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class VideoController extends Controller
 {
-    public function __construct(private readonly VideoServiceContract $service)
-    {
+    public function __construct(
+        private readonly VideoServiceContract $service,
+        private readonly ShortServiceContract $shortService,
+    ) {
     }
 
     public function upload(VideoUploadRequest $request) {
@@ -80,5 +83,46 @@ class VideoController extends Controller
         return response()->json(
             VideoStatus::userAvialable()
         );
+    }
+
+    public function viewerFirst(Request $request) {
+        // (sometimes) позволяет применять правила валидации, 
+        // если поле присутствует во входных данных запроса 'password' => sometimes|min:8 → если 'password' присутствует, то min:8
+        $validated = $request->validate([
+            'firstId' => 'required|integer',
+            'limit' => 'sometimes|integer|min:1|max:10',
+            'channelId' => 'sometimes|integer',
+        ]);
+
+        $limit = $validated['limit'] ?? 5;
+
+        $items = $this->shortService->firstWithRandom(
+            firstId: (int) $validated['firstId'],
+            limit: $limit,
+            authorId: $validated['channelId'] ?? null,
+        );
+
+        return VideoResource::collection($items);
+    }
+
+    public function viewerMore(Request $request) {
+        // ('exclude.*') обращение к каждому элементу массива
+        $validated = $request->validate([
+            'exclude' => 'array',
+            'exclude.*' => 'integer',
+            'limit' => 'sometimes|integer|min:1|max:20',
+            'channelId' => 'sometimes|integer',
+        ]);
+
+        $limit = $validated['limit'] ?? 5;
+        $exclude = $validated['exclude'] ?? [];
+
+        $items = $this->shortService->randomBatch(
+            limit: $limit,
+            exclude: $exclude,
+            authorId: $validated['channelId'] ?? null,
+        );
+
+        return VideoResource::collection($items);
     }
 }
