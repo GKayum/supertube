@@ -168,6 +168,13 @@ export default function Header({ onSideBarClick }) {
                                             >
                                                 + Плейлист
                                             </Link>
+                                            <Link
+                                                to='/entry'
+                                                className="block px-6 py-2 text-gray-700 hover:bg-gray-100"
+                                                onClick={() => setDropdownOpen(false)}
+                                            >
+                                                + Запись
+                                            </Link>
 
                                             {/* Выход */}
                                             <div className="border-t border-gray-100">

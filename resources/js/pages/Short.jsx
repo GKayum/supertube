@@ -452,7 +452,12 @@ export default function Short() {
             onTouchStart={onTouchStartY}
             onTouchMove={onTouchMove}
             onTouchEnd={onTouchEnd}
+            
         >
+            <Toast
+                {...toast}
+                onClose={() => setToast(t => ({...t, visible: false}))}
+            />
             <div 
                 className="h-full w-full transition-transform duration-300 ease-in-out"
                 style={{ transform: `translateY(-${activeIndex * 100}dvh)` }}

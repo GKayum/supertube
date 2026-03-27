@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChannelController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\EntryController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlaylistController;
 use App\Http\Controllers\Api\SearchController;
@@ -60,6 +61,8 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/playlists/store', [PlaylistController::class, 'store']);
         Route::put('/playlist/{id}/update', [PlaylistController::class, 'update'])->where('id', '[1-9][0-9]*');
+
+        Route::post('/entry/store', [EntryController::class, 'store']);
 
         Route::prefix('/user')->group(function () {
             Route::get('/videos', [UserController::class, 'videos']);
