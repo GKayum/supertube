@@ -74,6 +74,10 @@ Route::prefix('v1')->group(function () {
             Route::post('/channel/update', [ChannelController::class, 'update']);
             Route::get('/channels', [SubscribeController::class, 'channels']);
             Route::get('/playlists', [PlaylistController::class, 'index']);
+            Route::get('/entries', [EntryController::class, 'index']);
+
+            Route::get('/entries/{entry}', [EntryController::class, 'show']);
+            Route::put('/entries/{entry}', [EntryController::class, 'update']);
 
             Route::get('/watch-later', [WatchLaterController::class, 'list']);
             Route::post('/watch-later/order', [WatchLaterController::class, 'updateOrder']);

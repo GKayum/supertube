@@ -25,7 +25,8 @@ import Playlist from "../pages/user/Playlist";
 import MyPlaylists from "../pages/user/MyPlaylists";
 import Short from "../pages/Short";
 import MyShorts from "../pages/user/MyShorts";
-import EntryPage from "../pages/EntryPage";
+import MyEntries from "../pages/user/MyEntries";
+import EntryPage from "../pages/user/EntryPage";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -61,7 +62,10 @@ export default function Main() {
                             <Route path="/playlist" element={<Playlist />}/>
                             <Route path="/playlist/:playlistId" element={<Playlist />}/>
                             <Route path="/my-playlists" element={<MyPlaylists />}/>
+                            <Route path="/my-shorts" element={<MyShorts />}/>
+                            <Route path="/my-entries" element={<MyEntries />}/>
                             <Route path="/entry" element={<EntryPage />}/>
+                            <Route path="/entry/:entryId" element={<EntryPage />}/>
                         </Route>
                     </Routes>
                 </div>

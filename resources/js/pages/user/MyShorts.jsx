@@ -79,6 +79,7 @@ export default function MyShorts() {
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
                 {items.map((short) => (
                     <ShortCard
+                        key={`short-${short.id}`}
                         id={short.id}
                         title={short.title}
                         coverUrl={short.preview480}

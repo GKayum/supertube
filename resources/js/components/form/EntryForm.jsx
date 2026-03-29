@@ -20,7 +20,7 @@ export default function EntryForm({ entry = null, isEdit = false, onSuccess }) {
         if (entry) {
             setTitle(entry.title ?? '')
             setDescription(entry.description ?? '')
-            setHiddenLink(entry.hiddenLink ?? '')
+            setStatus(entry.status ?? 'draft')
         }
     }, [entry])
 
@@ -53,7 +53,7 @@ export default function EntryForm({ entry = null, isEdit = false, onSuccess }) {
             let res
 
             if (isEdit && entry?.id) {
-                res = await api.put(`/api/v1/entry/${entry.id}/update`, payload)
+                res = await api.put(`/api/v1/user/entries/${entry.id}`, payload)
                 setMessage('Измененния сохранены.')
             } else {
                 res = await api.post('/api/v1/entry/store', payload)
@@ -62,7 +62,7 @@ export default function EntryForm({ entry = null, isEdit = false, onSuccess }) {
                 setDescription('')
             }
 
-            if (onSuccess) onSuccess(res?.data)
+            if (onSuccess) onSuccess()
         } catch (error) {
             const errors  = error?.response?.data?.errors
             if (errors) setValidationErrors(errors)
@@ -100,7 +100,7 @@ export default function EntryForm({ entry = null, isEdit = false, onSuccess }) {
                     type="text"
                     value={title}
                     onChange={handleTitleChange}
-                    // required
+                    required
                     placeholder="Введите название..."
                     className={`w-full border rounded-lg px-4 py-2 bg-zinc-50 text-zinc-900 focus:outline-none focus:ring-2 ${
                         validationErrors?.title ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'    
@@ -122,7 +122,6 @@ export default function EntryForm({ entry = null, isEdit = false, onSuccess }) {
                     placeholder="Введите описание..."
                     value={description}
                     onChange={handleDescriptionChange}
-                    // required
                     className={`w-full border rounded-lg px-4 py-2 bg-zinc-50 text-zinc-900 focus:outline-none focus:ring-2 
                         [&::-webkit-scrollbar]:w-1 [&::-webkit-scrollbar-thumb]:bg-zinc-400 [&::-webkit-scrollbar-thumb]:rounded-2xl [&::-webkit-scrollbar-track]:bg-none ${
                         validationErrors?.description ? 'border-red-400 focus:ring-red-400' : 'border-gray-300 focus:ring-blue-500'    
@@ -155,7 +154,7 @@ export default function EntryForm({ entry = null, isEdit = false, onSuccess }) {
             <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50"
             >
                 {loading
                     ? (isEdit ? 'Сохранятем...' : 'Сохраняем...')
