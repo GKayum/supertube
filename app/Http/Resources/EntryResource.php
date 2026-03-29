@@ -20,6 +20,7 @@ class EntryResource extends JsonResource
             'description'    => $this->description,
             'status'         => $this->status,
             'channelTitle'   => $this->user->channel?->title,
+            'channelAvatar'  => $this->user->channel?->avatar,
             'channelId'      => $this->user->id,
             'likes'          => 0,
             'dislikes'       => 0,

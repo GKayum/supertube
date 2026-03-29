@@ -287,6 +287,8 @@ export default function Channel() {
                                     <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-3 mt-4">
                                         {entries.map(entry => (
                                             <EntryCardChannel
+                                                key={entry.id}
+                                                entryId={entry.id}
                                                 avatarUrl={channel.avatar}
                                                 channelName={channel.title}
                                                 timeAgo={entry.timeAgo}

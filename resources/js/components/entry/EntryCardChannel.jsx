@@ -1,6 +1,8 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function EntryCardChannel({
+    entryId,
     avatarUrl,
     channelName,
     channelUrl,
@@ -17,12 +19,19 @@ export default function EntryCardChannel({
     className = '',
 }) {
     const [expanded, setExpanded] = useState(initialExpanded)
+    const navigate = useNavigate()
 
     const isLong = (text ?? '').length > maxCollapsedChars
     const visibleText = expanded || !isLong
         ? text
         : (text ?? '').slice(0, maxCollapsedChars).replace(/\s+\S*$/, '') + '...' // (/\s+\S*$/) → нахождение последнего слова + пробел (' пример')
 
+    const handleEntryClick = () => {
+        if (entryId) {
+            navigate(`/blog/${entryId}`)
+        }
+    }
+        
     return (
         <article
             className={'flex gap-3 rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm ' + className}
@@ -32,6 +41,7 @@ export default function EntryCardChannel({
                 <a href={channelUrl} className="block" aria-label={channelName}>
                     <img
                         src={avatarUrl}
+                        alt=""
                         className="h-12 w-12 rounded-full object-cover ring-1 ring-zinc-200"
                         loading="lazy"
                     />
@@ -51,7 +61,10 @@ export default function EntryCardChannel({
                 </div>
 
                 {title && (
-                    <h3 className="mt-1 text-base font-semibold leading-6">
+                    <h3 
+                        className="mt-1 text-base font-semibold leading-6 cursor-pointer hover:text-blue-600 transition-colors"
+                        onClick={handleEntryClick}
+                    >
                         {title}
                     </h3>
                 )}

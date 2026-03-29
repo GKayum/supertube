@@ -44,7 +44,7 @@ class EntryController extends Controller
         return (new EntryResource($entry->fresh()))->response();
     }
 
-    public function show(Request $request, Entry $entry) {
+    public function showProfile(Request $request, Entry $entry) {
         if ($request->user()->id !== $entry->user_id) {
             abort(403);
         }
@@ -56,5 +56,15 @@ class EntryController extends Controller
         return EntryResource::collection(
             Entry::query()->latest('id')->limit(4)->get()
         );
+    }
+
+    public function show(Entry $entry) {
+        if ($entry->status !== 'published') {
+            abort(404);
+        }
+
+        $entry->load(['user.channel']);
+
+        return (new EntryResource($entry))->response();
     }
 }

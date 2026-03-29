@@ -21,6 +21,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/videos/search', [SearchController::class, 'filter']);
 
     Route::get('/entries', [EntryController::class, 'indexHome']);
+    Route::get('/entries/{entry}', [EntryController::class, 'show'])->where('entry', '[1-9][0-9]*');
 
     Route::get('/shorts/viewer', [VideoController::class, 'viewerFirst']);
     Route::get('/shorts/viewer/more', [VideoController::class, 'viewerMore']);
@@ -79,7 +80,7 @@ Route::prefix('v1')->group(function () {
             Route::get('/playlists', [PlaylistController::class, 'index']);
             Route::get('/entries', [EntryController::class, 'index']);
 
-            Route::get('/entries/{entry}', [EntryController::class, 'show']);
+            Route::get('/entries/{entry}', [EntryController::class, 'showProfile']);
             Route::put('/entries/{entry}', [EntryController::class, 'update']);
 
             Route::get('/watch-later', [WatchLaterController::class, 'list']);

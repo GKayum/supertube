@@ -27,6 +27,7 @@ import Short from "../pages/Short";
 import MyShorts from "../pages/user/MyShorts";
 import MyEntries from "../pages/user/MyEntries";
 import EntryPage from "../pages/user/EntryPage";
+import Entry from "../pages/Entry";
 
 export default function Main() {
     const [sidebarOpen, setSidebarOpen] = useState(false)
@@ -46,6 +47,7 @@ export default function Main() {
                         <Route path="/settings" element={<Settings />} />
                         <Route path="/video/:id" element={<Video />} />
                         <Route path="/shorts/:id" element={<Short />} />
+                        <Route path="/blog/:id" element={<Entry />} />
                         <Route path="/search" element={<SearchResultList />} />
                         <Route path="/channel/:id" element={<Channel />} />
                         <Route path="*" element={<NotFound />} />
