@@ -63,6 +63,10 @@ class User extends Authenticatable
         return $this->hasOne(Channel::class);
     }
 
+    public function entries() {
+        return $this->hasMany(Entry::class);
+    }
+
     public function subscribedChannels() {
         return $this->belongsToMany(Channel::class, 'subscribers', 'user_id', 'channel_id');
     }
@@ -72,5 +76,8 @@ class User extends Authenticatable
     }
     public function publishedShorts() {
         return $this->videos()->where('videos.status', VideoStatus::Published->value)->where('is_short', true);
+    }
+    public function publishedEntries() {
+        return $this->entries()->where('status', 'published');
     }
 }

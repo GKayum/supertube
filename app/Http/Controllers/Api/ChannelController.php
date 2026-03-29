@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\ChannelResource;
+use App\Http\Resources\EntryResource;
 use App\Http\Resources\PlaylistResource;
 use App\Http\Resources\UserResource;
 use App\Http\Resources\VideoResource;
@@ -100,5 +101,11 @@ class ChannelController extends Controller
         $channelOwn = User::query()->findOrFail($userId);
 
         return VideoResource::collection($channelOwn->publishedShorts);
+    }
+
+    public function entries(int $userId, Request $request) {
+        $channelOwn = User::query()->findOrFail($userId);
+
+        return EntryResource::collection($channelOwn->publishedEntries()->orderByDesc('id')->get());
     }
 }

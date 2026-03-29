@@ -4,44 +4,41 @@ import Toast from "../components/form/Toast"
 import VideoCard from "../components/video/cards/VideoCard"
 import { api } from "../services/api";
 import ShortCard from "../components/short/ShortCard";
+import EntryCardHome from "../components/entry/EntryCardHome";
 
 const FIRST_BLOCK_COUNT = 8
+const AFTER_SHORTS_COUNT = 8
 
 export default function Home() {
     const [videos, setVideos] = useState([])
     const [shorts, setShorts] = useState([])
+    const [entries, setEntries] = useState([])
     const [loading, setLoading] = useState(true)
     const [toast, setToast] = useState({ visible: false, message: '', type: 'info' })
 
     useEffect(() => {
-        fetchVideos()
-        fetchShorts()
+        (async () => {
+            try {
+                const [videoRes, shortRes, entryRes] = await Promise.all([
+                    api.get('/api/v1/videos'),
+                    api.get('/api/v1/videos/shorts'),
+                    api.get('/api/v1/entries'),
+                ])
+                setVideos(videoRes.data ?? [])
+                setShorts(shortRes.data ?? [])
+                setEntries((entryRes.data.data ?? []))
+            } catch (error) {
+                console.error('Ошибка при загрузке данных:', error);
+            } finally {
+                setLoading(false)
+            }
+        })()
     }, [])
 
-    const fetchVideos = async () => {
-        try {
-            const response = await api.get('/api/v1/videos')
-            setVideos(response.data)
-        } catch (error) {
-            console.error('Ошибка при загрузке списка видео:', error)            
-        } finally {
-            setLoading(false)
-        }
-    }
-
-    const fetchShorts = async () => {
-        try {
-            const response = await api.get('/api/v1/videos/shorts')
-            setShorts(response.data)
-        } catch (error) {
-            console.error('Ошибка при загрузке списка шортсов:', error)            
-        } finally {
-            setLoading(false)
-        }
-    }
-
+    // Отображение видео: 8 до шортсов, 8 после, и остальное
     const firstBlock = videos.slice(0, FIRST_BLOCK_COUNT)
-    const restBlock = videos.slice(FIRST_BLOCK_COUNT)
+    const afterShortsBlock = videos.slice(FIRST_BLOCK_COUNT, FIRST_BLOCK_COUNT + AFTER_SHORTS_COUNT)
+    const restBlock = videos.slice(FIRST_BLOCK_COUNT + AFTER_SHORTS_COUNT)
 
     if (loading) {
         return <p className="text-center text-gray-500 mt-10">Загрузка видео...</p>
@@ -74,6 +71,21 @@ export default function Home() {
                             ))}
                         </div>
                     </div>
+                )}
+
+                {afterShortsBlock.map(video => (
+                    <VideoCard key={video.id} video={video} setToast={setToast} />
+                ))}
+
+                {entries.length > 0 && (
+                    <>
+                        <div className="col-span-full">
+                            <h2 className="text-lg font-semibold">Записи каналов</h2>
+                        </div>
+                        {entries.map((entry) => (
+                            <EntryCardHome key={entry.id} entry={entry} />
+                        ))}
+                    </>
                 )}
 
                 {restBlock.map(video => (

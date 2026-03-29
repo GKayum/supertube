@@ -6,12 +6,13 @@ import NotFound from '../404'
 import ChannelVideoCard from "../../components/video/cards/ChannelVideoCard";
 import PlaylistCard from "../../components/playlist/PlaylistCard";
 import ShortCard from "../../components/short/ShortCard";
+import EntryCardChannel from "../../components/entry/EntryCardChannel";
 
 const TABS = [
     { key: 'videos',    label: 'Видео' },
     { key: 'playlists', label: 'Плейлисты' },
     { key: 'shorts',    label: 'Шортсы' },
-    { key: 'posts',     label: 'Посты' },
+    { key: 'entries',     label: 'Записи' },
     { key: 'streams',   label: 'Стримы' },
 ]
 
@@ -33,6 +34,11 @@ export default function Channel() {
     const [shortsFetched, setShortsFetched] = useState(false)
     const [shortsError, setShortsError] = useState('')
 
+    const [entries, setEntries] = useState([])
+    const [entriesLoading, setEntriesLoading] = useState(false)
+    const [entriesFetched, setEntriesFetched] = useState(false)
+    const [entriesError, setEntriesError] = useState('')
+
     useEffect(() => {
         setPlaylists([])
         setPlaylistsLoading(false)
@@ -43,6 +49,11 @@ export default function Channel() {
         setShortsLoading(false)
         setShortsFetched(false)
         setShortsError('')
+
+        setEntries([])
+        setEntriesLoading(false)
+        setEntriesFetched(false)
+        setEntriesError('')
     }, [id])
 
     useEffect(() => {
@@ -104,6 +115,26 @@ export default function Channel() {
         }
         run()
     }, [activeTab, id, shortsFetched, shortsLoading])
+
+    useEffect(() => {
+        if (activeTab !== 'entries' || entriesFetched || entriesLoading) return
+
+        const run = async () => {
+            setEntriesLoading(true)
+            setEntriesError('')
+            try {
+                const response = await api.get(`/api/v1/channel/${id}/entries`)
+
+                setEntries(response.data.data || [])
+                setEntriesFetched(true)
+            } catch (error) {
+                setEntriesError('Не удалось загрузить шортсы')
+            } finally {
+                setEntriesLoading(false)
+            }
+        }
+        run()
+    }, [activeTab, id, entriesFetched, entriesLoading])
 
     if (loading) {
         return <p className="text-center text-gray-500 mt-10">Загрузка данных...</p>
@@ -241,8 +272,38 @@ export default function Channel() {
                         )}
                     </>
                 )}
-                {activeTab === 'posts' && (
-                    <div>Посты...</div>
+                {activeTab === 'entries' && (
+                    <>
+                        {entriesLoading && <div className="text-gray-500">Загрузка записей...</div>}
+
+                        {!entriesLoading && entriesError && (
+                            <div className="text-red-500">{entriesError}</div>
+                        )}
+
+                        {!entriesLoading && !entriesError && (
+                            entries.length === 0
+                                ? <div className="text-gray-500">На канале нет записей</div>
+                                : (
+                                    <div className="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-1 lg:grid-cols-1 gap-3 mt-4">
+                                        {entries.map(entry => (
+                                            <EntryCardChannel
+                                                avatarUrl={channel.avatar}
+                                                channelName={channel.title}
+                                                timeAgo={entry.timeAgo}
+                                                title={entry.title}
+                                                text={entry.description}
+                                                likes={entry.likes}
+                                                dislikes={entry.dislikes}
+                                                commentsCount={entry.commentsCount}
+                                                onLike={() => {}}
+                                                onDislike={() => {}}
+                                                onCommentsClick={() => {}}
+                                            />
+                                        ))}
+                                    </div>
+                                )
+                        )}
+                    </>
                 )}
                 {activeTab === 'streams' && (
                     <div>Стримы...</div>

@@ -19,12 +19,13 @@ class EntryResource extends JsonResource
             'title'          => $this->title,
             'description'    => $this->description,
             'status'         => $this->status,
+            'channelTitle'   => $this->user->channel?->title,
+            'channelId'      => $this->user->id,
             'likes'          => 0,
             'dislikes'       => 0,
-            'commentsCount' => 0,
+            'commentsCount'  => 0,
             'is_owner'       => $request->user()?->id === $this->user_id,
-            'created_at'     => $this->created_at?->toIso8601String(),
-            'updated_at'     => $this->updated_at?->toIso8601String(),
+            'timeAgo'        => $this->created_at?->diffForHumans(),
         ];
     }
 }

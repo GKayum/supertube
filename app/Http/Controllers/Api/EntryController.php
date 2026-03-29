@@ -51,4 +51,10 @@ class EntryController extends Controller
 
         return (new EntryResource($entry))->response();
     }
+
+    public function indexHome(Request $request) {
+        return EntryResource::collection(
+            Entry::query()->latest('id')->limit(4)->get()
+        );
+    }
 }

@@ -20,6 +20,8 @@ Route::prefix('v1')->group(function () {
     Route::get('/videos/shorts', [VideoController::class, 'listShorts']);
     Route::get('/videos/search', [SearchController::class, 'filter']);
 
+    Route::get('/entries', [EntryController::class, 'indexHome']);
+
     Route::get('/shorts/viewer', [VideoController::class, 'viewerFirst']);
     Route::get('/shorts/viewer/more', [VideoController::class, 'viewerMore']);
 
@@ -38,6 +40,7 @@ Route::prefix('v1')->group(function () {
     Route::get('/channel/{id}', [ChannelController::class, 'show'])->where('id', '[1-9][0-9]*');
     Route::get('/channel/{id}/playlists', [ChannelController::class, 'playlists'])->where('id', '[1-9][0-9]*');
     Route::get('/channel/{id}/shorts', [ChannelController::class, 'shorts'])->where('id', '[1-9][0-9]*');
+    Route::get('/channel/{id}/entries', [ChannelController::class, 'entries'])->where('id', '[1-9][0-9]*');
 
     Route::get('/playlist/{id}', [PlaylistController::class, 'show'])->where('id', '[1-9][0-9]*');
     Route::post('/playlists/{id}/view/increment', [PlaylistController::class, 'incrementView'])->where('id', '[1-9][0-9]*');
