@@ -4,6 +4,7 @@ import { api } from "../services/api";
 import { useEffect, useState } from "react";
 import Toast from "../components/form/Toast"
 import NotFound from "./404"
+import EntryComments from "../components/entry/EntryComments";
 
 export default function Entry() {
     const { id } = useParams()
@@ -147,14 +148,7 @@ export default function Entry() {
                 </div>
             </article>
 
-            <div className="mt-8 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-semibold text-gray-900 mb-4">
-                    Комментарии ({commentsCount})
-                </h2>
-                <div className="text-center text-gray-500 py-8">
-                    ...
-                </div>
-            </div>
+            <EntryComments entryId={id} />
         </div>
     )
 }

@@ -24,7 +24,7 @@ class EntryResource extends JsonResource
             'channelId'      => $this->user->id,
             'likes'          => 0,
             'dislikes'       => 0,
-            'commentsCount'  => 0,
+            'commentsCount'  => $this->comments()->count(),
             'is_owner'       => $request->user()?->id === $this->user_id,
             'timeAgo'        => $this->created_at?->diffForHumans(),
         ];

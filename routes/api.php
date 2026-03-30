@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\ChannelController;
 use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\EntryCommentController;
 use App\Http\Controllers\Api\EntryController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlaylistController;
@@ -22,6 +23,7 @@ Route::prefix('v1')->group(function () {
 
     Route::get('/entries', [EntryController::class, 'indexHome']);
     Route::get('/entries/{entry}', [EntryController::class, 'show'])->where('entry', '[1-9][0-9]*');
+    Route::get('/entries/{entry}/comments', [EntryCommentController::class, 'index'])->where('entry', '[1-9][0-9]*');
 
     Route::get('/shorts/viewer', [VideoController::class, 'viewerFirst']);
     Route::get('/shorts/viewer/more', [VideoController::class, 'viewerMore']);
@@ -67,6 +69,7 @@ Route::prefix('v1')->group(function () {
         Route::put('/playlist/{id}/update', [PlaylistController::class, 'update'])->where('id', '[1-9][0-9]*');
 
         Route::post('/entry/store', [EntryController::class, 'store']);
+        Route::post('/entries/{entry}/comments', [EntryCommentController::class, 'store'])->where('entry', '[1-9][0-9]*');
 
         Route::prefix('/user')->group(function () {
             Route::get('/videos', [UserController::class, 'videos']);
