@@ -11,7 +11,7 @@ class StoreEntryRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return auth()->check();
+        return true;
     }
 
     /**
@@ -24,7 +24,8 @@ class StoreEntryRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'min:2', 'max:200'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'status' => ['sometimes', 'nullable', 'string', 'in:draft,published'], // in:draft,published → значение только draft,published
+            'image' => ['nullable', 'image', 'mimes:png,jpg,jpeg,gif,webp', 'max:2048'],
+            'status' => ['string', 'in:draft,published'], // in:draft,published → значение только draft,published
         ];
     }
 }

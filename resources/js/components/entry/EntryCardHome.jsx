@@ -1,6 +1,9 @@
 import { Link } from "react-router-dom";
+import { useEntryLikes } from "../../hooks/useEntryLikes";
 
 export default function EntryCardHome({ entry }) {
+    const { likesCount, dislikesCount, isLiking, handleLike, handleDislike } = useEntryLikes(entry.likes ?? 0, entry.dislikes ?? 0)
+
     return (
         <Link to={`/blog/${entry.id}`} className="block">
             <article className="rounded-2xl border border-zinc-200 bg-white/90 p-4 shadow-sm hover:shadow-md transition-shadow h-full">
@@ -28,20 +31,30 @@ export default function EntryCardHome({ entry }) {
                 )}
 
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
-                    <div className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80 cursor-pointer">
+                    <button
+                        type="button"
+                        onClick={(e) => handleLike(entry.id, e)}
+                        disabled={isLiking}
+                        className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80 cursor-pointer"
+                    >
                         <img src="/icons/like-dark-sm.svg" />
-                        <span>{entry.likes ?? 0}</span>
-                    </div>
+                        <span>{likesCount}</span>
+                    </button>
 
-                    <div className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80 cursor-pointer">
+                    <button
+                        type="button"
+                        onClick={(e) => handleDislike(entry.id, e)}
+                        disabled={isLiking}
+                        className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80 cursor-pointer"
+                    >
                         <img src="/icons/dislike-dark-sm.svg" />
-                        <span>{entry.dislikes ?? 0}</span>
-                    </div>
+                        <span>{dislikesCount}</span>
+                    </button>
 
-                    <a href="#" className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80">
+                    <div className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80">
                         <img src="/icons/comment-dark-sm.svg" />
                         <span>{entry.commentsCount ?? 0}</span>
-                    </a>
+                    </div>
                 </div>
             </article>
         </Link>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useEntryLikes } from "../../hooks/useEntryLikes";
 
 export default function EntryCardChannel({
     entryId,
@@ -19,17 +20,28 @@ export default function EntryCardChannel({
     className = '',
 }) {
     const [expanded, setExpanded] = useState(initialExpanded)
+    const { likesCount, dislikesCount, isLiking, handleLike, handleDislike } = useEntryLikes(likes, dislikes)
     const navigate = useNavigate()
 
     const isLong = (text ?? '').length > maxCollapsedChars
     const visibleText = expanded || !isLong
         ? text
-        : (text ?? '').slice(0, maxCollapsedChars).replace(/\s+\S*$/, '') + '...' // (/\s+\S*$/) → нахождение последнего слова + пробел (' пример')
+        : (text ?? '').slice(0, maxCollapsedChars).replace(/\s+\S*$/, '') + '...' // (/\s+\S*$/) → поиск последнего слова + пробел (' пример')
 
     const handleEntryClick = () => {
         if (entryId) {
             navigate(`/blog/${entryId}`)
         }
+    }
+
+    const onLikeClick = async (e) => {
+        const response = await handleLike(entryId, e)
+        if (onLike) onLike(response)
+    }
+
+    const onDislikeClick = async (e) => {
+        const response = await handleDislike(entryId, e)
+        if (onDislike) onDislike(response)
     }
         
     return (
@@ -90,22 +102,24 @@ export default function EntryCardChannel({
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-sm">
                     <button
                         type="button"
-                        onClick={onLike}
+                        onClick={onLikeClick}
+                        disabled={isLiking}
                         aria-pressed="false"
                         className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80 cursor-pointer"
                     >
                         <img src="/icons/like-dark-sm.svg" />
-                        <span>{likes}</span>
+                        <span>{likesCount}</span>
                     </button>
 
                     <button
                         type="button"
-                        onClick={onDislike}
+                        onClick={onDislikeClick}
+                        disabled={isLiking}
                         aria-pressed="false"
                         className="inline-flex items-center gap-1 rounded-xl px-2 py-1 ring-1 ring-zinc-200 hover:opacity-80 cursor-pointer"
                     >
                         <img src="/icons/dislike-dark-sm.svg" />
-                        <span>{dislikes}</span>
+                        <span>{dislikesCount}</span>
                     </button>
 
                     <button

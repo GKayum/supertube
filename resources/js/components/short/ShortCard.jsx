@@ -21,7 +21,7 @@ export default function ShortCard({ id, title, coverUrl, videoUrl, views, source
     return (
         <div
             key={`short-${id}`} 
-            className="group isolate relative flex aspect-9/16 flex-col gap-2 w-[180px]"
+            className="group isolate relative flex aspect-9/16 flex-col gap-2 w-[180px] min-w-0"
             onMouseEnter={playPreview}
             onMouseLeave={stopPreview}
             onFocus={playPreview}

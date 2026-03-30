@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\ChannelController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\EntryCommentController;
 use App\Http\Controllers\Api\EntryController;
+use App\Http\Controllers\Api\EntryLikeController;
 use App\Http\Controllers\Api\LikeController;
 use App\Http\Controllers\Api\PlaylistController;
 use App\Http\Controllers\Api\SearchController;
@@ -24,6 +25,9 @@ Route::prefix('v1')->group(function () {
     Route::get('/entries', [EntryController::class, 'indexHome']);
     Route::get('/entries/{entry}', [EntryController::class, 'show'])->where('entry', '[1-9][0-9]*');
     Route::get('/entries/{entry}/comments', [EntryCommentController::class, 'index'])->where('entry', '[1-9][0-9]*');
+    Route::get('/entries/{entry}/likes', [EntryLikeController::class, 'list'])->where('entry', '[1-9][0-9]*');
+    Route::post('/entries/{entry}/like', [EntryLikeController::class, 'like'])->where('entry', '[1-9][0-9]*');
+    Route::post('/entries/{entry}/dislike', [EntryLikeController::class, 'dislike'])->where('entry', '[1-9][0-9]*');
 
     Route::get('/shorts/viewer', [VideoController::class, 'viewerFirst']);
     Route::get('/shorts/viewer/more', [VideoController::class, 'viewerMore']);
@@ -84,12 +88,13 @@ Route::prefix('v1')->group(function () {
             Route::get('/entries', [EntryController::class, 'index']);
 
             Route::get('/entries/{entry}', [EntryController::class, 'showProfile']);
-            Route::put('/entries/{entry}', [EntryController::class, 'update']);
+            Route::post('/entries/{entry}', [EntryController::class, 'update']);
 
             Route::get('/watch-later', [WatchLaterController::class, 'list']);
             Route::post('/watch-later/order', [WatchLaterController::class, 'updateOrder']);
 
             Route::get('/liked', [LikeController::class, 'liked']);
+            Route::get('/liked-entries', [EntryLikeController::class, 'liked']);
         });
     });
 });

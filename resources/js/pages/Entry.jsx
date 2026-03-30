@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Toast from "../components/form/Toast"
 import NotFound from "./404"
 import EntryComments from "../components/entry/EntryComments";
+import { useEntryLikes } from "../hooks/useEntryLikes";
 
 export default function Entry() {
     const { id } = useParams()
@@ -14,18 +15,17 @@ export default function Entry() {
     const [entry, setEntry] = useState(null)
     const [loading, setLoading] = useState(true)
     const [notFound, setNotFound] = useState(false)
-    const [likesCount, setLikesCount] = useState(0)
-    const [dislikesCount, setDislikesCount] = useState(0)
     const [commentsCount, setCommentsCount] = useState(0)
     const [toast, setToast] = useState({ visible: false, message: '', type: 'info' })
+
+    const { likesCount, dislikesCount, isLiking, handleLike, handleDislike, updateCounts } = useEntryLikes()
 
     useEffect(() => {
         const fetchEntry = async () => {
             try {
                 const response = await api.get(`/api/v1/entries/${id}`)
                 setEntry(response.data.data)
-                setLikesCount(response.data.data.likes || 0)
-                setDislikesCount(response.data.data.dislikes || 0)
+                updateCounts(response.data.data.likes || 0, response.data.data.dislikes || 0)
                 setCommentsCount(response.data.data.commentsCount || 0)
             } catch (error) {
                 if (error.response && error.response.status === 404) {
@@ -44,6 +44,30 @@ export default function Entry() {
 
     const handleChannelClick = () => {
         navigate(`/channel/${entry.channelId}`)
+    }
+
+    const onLikeClick = async () => {
+        try {
+            await handleLike(id)
+        } catch (error) {
+            setToast({
+                visible: true,
+                message: 'Ошибка при лайке записи',
+                type: 'error'
+            })
+        }
+    }
+
+    const onDislikeClick = async () => {
+        try {
+            await handleDislike(id)
+        } catch (error) {
+            setToast({
+                visible: true,
+                message: 'Ошибка при дизлайке записи',
+                type: 'error'
+            })
+        }
     }
 
     if (loading) {
@@ -109,7 +133,7 @@ export default function Entry() {
                         </div>
                     </div>
 
-                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-4">
+                    <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
                         {entry.title || 'Без заголовка'}
                     </h1>
                 </div>
@@ -122,10 +146,21 @@ export default function Entry() {
                     </div>
                 </div>
 
+                {entry.image && (
+                    <div className="px-6 pb-6">
+                        <img 
+                            src={entry.image}
+                            alt={entry.title || 'Обложка записи'}
+                            className="max-w-full h-auto min-h-[200px] max-h-[400px] object-contain mx-auto block rounded-lg"
+                        />
+                    </div>
+                )}
+
                 <div className="px-6 py-4 bg-gray-50 border-t border-gray-200">
                     <div className="flex items-center space-x-4">
                         <button
-                            onClick={() => {}}
+                            onClick={onLikeClick}
+                            disabled={isLiking}
                             className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
                         >
                             <img src="/icons/like-dark-sm.svg" />
@@ -133,7 +168,8 @@ export default function Entry() {
                         </button>
 
                         <button
-                            onClick={() => {}}
+                            onClick={onDislikeClick}
+                            disabled={isLiking}
                             className="flex items-center space-x-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition cursor-pointer"
                         >
                             <img src="/icons/dislike-dark-sm.svg" />

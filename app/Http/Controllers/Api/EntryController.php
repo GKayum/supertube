@@ -7,11 +7,20 @@ use App\Http\Requests\StoreEntryRequest;
 use App\Http\Resources\EntryResource;
 use App\Models\Entry;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class EntryController extends Controller
 {
     public function store(StoreEntryRequest $request) {
         $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('entries', $imageName, 'public');
+            $data['image'] = $imagePath;
+        }
 
         $entry = new Entry($data);
         $entry->user_id = $request->user()->id;
@@ -37,7 +46,20 @@ class EntryController extends Controller
             abort(403);
         }
 
-        $entry->fill($request->validated());
+        $data = $request->validated();
+
+        if ($request->hasFile('image')) {
+            if ($entry->image && Storage::disk('public')->exists($entry->image)) {
+                Storage::disk('public')->delete($entry->image);
+            }
+
+            $image = $request->file('image');
+            $imageName = time() . '_' . Str::random(10) . '.' . $image->getClientOriginalExtension();
+            $imagePath = $image->storeAs('entries', $imageName, 'public');
+            $data['image'] = $imagePath;
+        }
+
+        $entry->fill($data);
         $entry->save();
 
         // (fresh()) для получения нового экземпляра той же модели с актуальными данными напрямую из БД
